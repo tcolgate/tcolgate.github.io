@@ -2,11 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Magic Sand</title>
-    <link>https://tcolgate.github.io/categories/fun/index.xml</link>
+    <link>https://tcolgate.github.io/categories/prometheus/index.xml</link>
     <description>Recent content on Magic Sand</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <atom:link href="https://tcolgate.github.io/categories/fun/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://tcolgate.github.io/categories/prometheus/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Time Series Search in Prometheus</title>
