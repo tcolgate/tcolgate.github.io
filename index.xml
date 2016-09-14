@@ -27,15 +27,5 @@
       <description></description>
     </item>
     
-    <item>
-      <title>Time Series Search in Prometheus</title>
-      <link>https://tcolgate.github.io/blog/time-series-search-in-prometheus/</link>
-      <pubDate>Wed, 14 Sep 2016 00:00:00 +0000</pubDate>
-      
-      <guid>https://tcolgate.github.io/blog/time-series-search-in-prometheus/</guid>
-      <description>&lt;p&gt;Note: This post describes an extentsion to prometheus that is unlikely to ever make it upstream.&lt;/p&gt;
-</description>
-    </item>
-    
   </channel>
 </rss>
