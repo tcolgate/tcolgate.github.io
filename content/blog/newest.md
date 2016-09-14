@@ -1,7 +1,7 @@
 ---
 title: "Time Series Search in Prometheus"
 date: "2016-09-14"
-draft = true
+draft: true
 description: "This post describes an experiment in extending Prometheus to support time searching matching"
 categories:
     - "prometheus"
