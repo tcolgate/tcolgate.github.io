@@ -1,0 +1,34 @@
+baseurl = "https://tcolgate.github.io/"
+builddrafts = false
+canonifyurls = true
+contentdir = "content"
+languageCode = "en-GB"
+layoutdir = "layouts"
+publishdir = "public"
+author = "Tristan Colgate-McFarlane"
+title = "Magic Sand"
+pygmentsuseclasses = true
+#disqusShortname = "cocoaexamplesite" # Comment out to disable Disqus.
+pluralizelisttitles = false
+theme = "cocoa"
+
+[permalinks]
+fixed = ":title/"
+blog = "blog/:slug/"
+
+[params]
+Author = "Tristan Colgate-McFarlane"
+CacheBuster = true
+DateForm = "Jan 2, 2006"
+DateFormFull = "Mon Jan 2 2006 15:04:05 MST"
+Description = "Don't panic"
+#Email = "tcolgate@gmail.com"
+FaviconFile = "img/leaf.ico"
+GATracker = "XYZ"
+GitHub = "//github.com/tcolgate"
+HighlightJS = true
+Initials = "tcm" # Displayed on single post page; DEPRECATED in v0.3.0.
+Lang = "en"
+LinkedIn = "//linkedin.com/in/tristan-colgate-762b052"
+Twitter = "//twitter.com/t_colgate"
+ExtraCssFiles = [ "/css/override.css" ] # In your `static/css`, add/remove files as necessary.
