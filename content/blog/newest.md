@@ -98,7 +98,7 @@ The process is straight forward:
 
 * Downsample the data to a convenient number of samples. Typically 6 to 8 are
   enogh
-* Normalize this downsampled data to sit between a range of -1 and 1
+* Normalize this downsampled data (usually [z-Normalization](http://jmotif.github.io/sax-vsm_site/morea/algorithm/znorm.html)
 * Quantize the resulting data into a set of ranges (typically 8)
 * Assign a letter to each quantized value.
 
@@ -109,21 +109,92 @@ some example values for the quantization bands they found effective.
 
 After some experementation I eventually implented, and successfully used this
 technique using a tool called
-[lookalike](https://github.com/tcolgate/lookalike), developed for Cacti. I
-toyed with ideas for implementing a similar solution for OpenTSDB, and
+[lookalike](https://github.com/tcolgate/lookalike), developed for Cacti.
+
+I toyed with ideas for implementing a similar solution for OpenTSDB, and
 InfluxDB, but neither's internals made it particularly easy (the latter used a
 map/reduce model internally that proved tricky, the former is written in java)
 
 ## Prometheus Implementation
 
+Whilst prometheus does not support string data for values, float64 does give us
+plenty of room to pack in a PAA encoding. 8 3-bit samples were generally
+sufficient for a reasonable match in lookalike. We can store 52 bit integers
+exactly in a floa64, which is far more space than the 24-bits we require.
+
 Prometheus is essentially an in-memory time series database with some support
 for spilling out to disk. This has the advantage that all the data is easily
 available when an internal function executes.
 
-Whilst prometheus does not support string data for values, float64 does give us
-plenty of room to pack in a PAA encoding. 8 3-bit samples were generally
-sufficient for a reasonable match in lookalike. We can store 52 bit integers
-exactly in a floa64, which is far morei space than the 24-bits we require.
+Proetheus has no internal support for downsampling, so this needed to be done
+within the function (Lookalike used the inherent downsampling of an RRD file).
+For prometheus I opted to implement
+[Least-Triangle-Three_buck](http://skemman.is/stream/get/1946/15343/37285/3/SS_MSthesis.pdf).
+This was largely chosen because it seemed interesting, and there is a somewhat
+"visual" component to what PAA is trying to do. In practice, the technique is
+expensive and simpler methods should be tried for comparison.
+
+The process is adjusted as follows:
+
+* LTTB Downsample the data to 8 samples.
+* z-Normalize this downsampled data.
+* Quantize the resulting data.
+* Take each 3 bit sample and pack into a sinlge integer
+* Convert that integer to a float64
+
+## Usage
+
+The paa() function takes a range vector and returns an instant vector. The actual value
+returned is not of much use directly.
+
+Using the function is rather clumsy.
+
+To calculate a single paa for the all time series for last 15 minutes:
+
+``` paa({__name__!=""}[15m])```
+
+If we want to find all time series that correlate with our network traffic on eth0:
+
+``` paa({__name__!=""}[15m]) == paa(task:node_network_transmit_bytes:rate1m{device="etho"}[15m])```
+
+We can establish a recording rule that will track the PAA for a 15m window
+of etwork traffic:
+
+```
+task:node_network_receive_bytes:paa15m_rate1m = paa(task:node_network_receieve_bytes:rate1m[15m])
+task:node_network_transmit_bytes:paa15m_rate1m = paa(task:node_network_transmit_bytes:rate1m[15m])
+```
+
+If we want to find all network interfaces trasmitting traffic that correlates strong with traffic received at myhost eth):
+
+``` task:node_network_transmit_bytes:paa15m_rate1m == task:node_network_receive_bytes:paa15m_rate1m{instane="myhost",device="eth1"} ```
+
+
+
+## Performance
+
+Prometheus has excellent support internally for testing and benchmarking of its
+functions.
+
+## Problems
+
+The code does not grecefully handle NaN or Inf values in time series. Lookalike
+catered for this by adding an additional letter to the PAA representation
+that was used if a time series had no values in a given period. The
+downsampling function would need adjusting to take this into account, and the
+integer representation would need an extra bit per sample to allow such a
+representation.
+
+In any sufficiently large environment, simple correlation will be fairly
+common.
+
+The PAA itself is relatively hard work to calculate. In a large environment,
+calculating a PAA in a reocording rule for a large number of time series will
+probably require considerable extra CPU, compared to typical rate or aggregate.
+
+Prometheus uses a double-delta encoding scheme for it's internal and on-disk
+data storage. PAA value will not change "smoothely", and are likely to stress
+the storage more than a regular time series.
 
 ## Conclusion
 
