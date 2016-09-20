@@ -16,7 +16,7 @@ plot "plot.data" using (($2 - S1_mean_y) / S1_stddev_y) t "series1" w linespoint
 
 set output 'paa.fig3.png'
 set title "Quantized data"
-#set yrange [-2.0:2.0]
+set yrange [-1.8:]
 
 stats "plot.data" using 1:2 name "S1"
 stats "plot.data" using 1:3 name "S2"

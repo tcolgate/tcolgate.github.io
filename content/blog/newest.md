@@ -1,6 +1,6 @@
 ---
 title: "Time Series Search in Prometheus"
-date: "2016-09-14"
+date: "2016-09-20"
 draft: false
 description: "This post describes an experiment in extending Prometheus to support time searching matching"
 categories:
@@ -9,19 +9,21 @@ categories:
     - "timeseries"
 ---
 
-# Introduction
+*Note:*: This post describes an extension to [prometheus](https://prometheus.io) that is unlikely to ever make it upstream.
 
-*Note:*: This post describes an extentsion to [prometheus](https://prometheus.io) that is unlikely to ever make it upstream.
+The code implementing the feature can be see in this [Pull Request](https://github.com/prometheus/prometheus/pull/1991/files). If you wish to try it out you can try the following:
 
-I should say up-front that I make no claim to any real expertise in this field.
-I have gleaned what I could from papers written by those far more qualified
-than I, and applied it with a degree of success that could equally be
-attributable to blind luck. That being said, I had fun doing it, and my
-experience may be intersting, or enlightening, to others.
+```
+$ mkdir -p ${GOPATH}/github/prometheus/
+$ cd ${GOPATH}/github/prometheus/
+$ git clone https://github.com/tcolgate/prometheus.git
+$ cd prometheus
+$ make
+```
 
 ## Time Series Indexing
 
-Traditionally, when we talk about an index for a timeseries database, we are
+Traditionally, when we talk about an index for a time-series database, we are
 talking about an index of the metadata. In the case of prometheus, such an
 index would help us locate all the series with certain labels, allowing us to
 quickly query, for example, all the _http\_requests\_total_ timeseries that
@@ -35,6 +37,12 @@ fast changing counters. Searching for an exact float64 value is of limited use.
 Even searching specific numbers within a known range is not that useful. Traditional
 indexing methods are just not of much interest for the time series data itself.
 
+I should say up-front that I make no claim to any real expertise jjj
+I have gleaned what I could from papers written by those far more qualified
+than I, and applied it with a degree of success that could equally be
+attributable to blind luck. That being said, I had fun doing it, and my
+experience may be intersting, or enlightening, to others.
+
 ## Finding signals in the noise
 
 Whilst it's rare to want to find a specific value in our data, it's not
@@ -44,12 +52,12 @@ administrator. Correlation does not imply causation, but it can get the witch hu
 off to a good start.
 
 I often found myself in this situation when working as a network administrator
-on a medium sized office and datacenter network in a previous role. The total
+on a medium sized office and data-center network in a previous role. The total
 estate consisted of several dozen high density switches, totalling a few thousand
-ports. It was not uncmmon for a single user monopolise the, relatively small,
+ports. It was not uncommon for a single user monopolise the, relatively small,
 central office Internet pipe. Finding which one of the many 1Gb/s ports was
 originating the 40Mb/s spike was tedious, and usually involved scrolling
-through pages of cacti graphs to locate the floor and port reponsible.
+through pages of cacti graphs to locate the floor and port responsible.
 
 It seemed that it should be possible to find graphs that contained features
 with a passing resemblance to the problematic spike. My manual search was
@@ -59,47 +67,48 @@ do this for us?
 
 ## Feature space reduction
 
-Unsuprisingly, many greater minds than mine had expelled much effort to solve
-this problem (though, none that I know of, were hunting for rouge bittorrent
+Unsurprisingly, many greater minds than mine had expelled much effort to solve
+this problem (though, none that I know of, were hunting for rouge BitTorrent
 users).
 
 The answer lies in a set of techniques called Dimensionality Reduction. The key
 is to convert our time series data from it's initial state, we'll call temporal
 space, to something called a Feature Space. Feature Spaces represent features
-of the data over time, rather than the speific data samples themselves. Once
+of the data over time, rather than the specific data samples themselves. Once
 converted, we effectively reduce the resolution of the data in the feature
 space, allowing us to compare the features, rather than the raw data. Such,
 comparisons can be much "fuzzier".
 
-The best known example of a feature-space conversion is the Fourier Tranform
-and its variants (DCTs, and wavelet transoforms for example). Rather than
+The best known example of a feature-space conversion is the Fourier Transform
+and its variants (DCTs, and wavelet transforms for example). Rather than
 represent the time series data as a series of values of the time domain, these
 tell us which frequencies are present in the data. These frequencies are the
 features.
 
 The broad idea is to convert our time series data into some other form that
 more directly represents the features, then compare those features for the
-similarities we are interested in.
+similarities we are interested in.  Once we are working in feature space we can
+apply techniques such as Euclidian Distance and Nearest Neighbour searches.
 
 As tantalising as the frequency domain conversion are, it turns out that some
-of their properties  make them less ideal for correlation of spikey network
-traffic. In particular, a small shift of a spike of taffic in the temporal
+of their properties  make them less ideal for correlation of spiky network
+traffic. In particular, a small shift of a spike of traffic in the temporal
 space (appearing very slightly earlier or later in one graph from another), can
 result in very different frequency domain data. Small square spikes generally
 don't encode well to frequency domain. Such spikes are common in network
 monitoring data.
 
 The [SAX](http://www.cs.ucr.edu/~eamonn/SAX.pdf) project came up with an
-alternative approach which is easy to understand, and very easy to implememt.
+alternative approach which is easy to understand, and very easy to implement.
 
 ## Peace-wise Aggregate Approximation
 
 The process is straight forward:
 
 * Downsample the data to a convenient number of samples. Typically 6 to 8 are
-  enogh
-* Normalize this downsampled data (usually [z-Normalization](http://jmotif.github.io/sax-vsm_site/morea/algorithm/znorm.html)
-* Quantize the resulting data into a set of ranges (typically 8)
+  enough.
+* Normalize this downsampled data (usually [z-Normalization](http://jmotif.github.io/sax-vsm_site/morea/algorithm/znorm.html).
+* Quantize the resulting data into a set of ranges (typically 8).
 * Assign a letter to each quantized value.
 
 The resulting string encodes the shape of the time series data. Any two time
@@ -107,13 +116,26 @@ series with the same final string encoding will have a similar basic shape.
 The SAX and [ISAX2](http://www.cs.ucr.edu/~eamonn/iSAX_2.0.pdf) papers give
 some example values for the quantization bands they found effective.
 
-After some experementation I eventually implented, and successfully used this
+This is easier to visualize. The example data is blatantly rigged for
+demonstrative purposes. (We assume downsampling has already occurred).
+
+{{< figure src="/img/paa/paa.fig1.png" >}}
+{{< figure src="/img/paa/paa.fig2.png" class="right" >}}
+{{< figure src="/img/paa/paa.fig3.png" class="right" >}}
+
+For each quantized value we assign a letter, A for the lowest band, H for the
+highest, in the example (rather conveniently), both would encode to
+"BBBFGGFE". In practice, many of the spikes, errors, or drop offs in traffic
+result in drop and jumps in traffic that correlate well.
+
+After some experimentation I eventually implemented, and successfully used this
 technique using a tool called
 [lookalike](https://github.com/tcolgate/lookalike), developed for Cacti.
 
 I toyed with ideas for implementing a similar solution for OpenTSDB, and
-InfluxDB, but neither's internals made it particularly easy (the latter used a
-map/reduce model internally that proved tricky, the former is written in java)
+InfluxDB, but neither had internals that  made it particularly easy (the latter
+used a map/reduce model internally that proved tricky, the former is written in
+java)
 
 ## Prometheus Implementation
 
@@ -183,7 +205,7 @@ task:node_network_receive_bytes:paa15m_rate1m{instane="myhost",device="eth1"}
 ```
 
 Since this is using pre-recorded values, the match does not need do do any calculation and
-should therefore be very fast indeeed.
+should therefore be very fast indeed.
 
 ## Performance
 
@@ -207,7 +229,7 @@ ok      github.com/prometheus/prometheus/promql 8.941s
 
 ## Problems
 
-The code does not grecefully handle NaN or Inf values in time series. Lookalike
+The code does not gracefully handle NaN or Inf values in time series. Lookalike
 catered for this by adding an additional letter to the PAA representation
 that was used if a time series had no values in a given period. The
 downsampling function would need adjusting to take this into account, and the
@@ -218,19 +240,19 @@ In any sufficiently large environment, simple correlation will be fairly
 common.
 
 The PAA itself is relatively hard work to calculate. In a large environment,
-calculating a PAA in a reocording rule for a large number of time series will
+calculating a PAA in a recording rule for a large number of time series will
 probably require considerable extra CPU, compared to typical rate or aggregate.
 However, since the usage and nature of the result is quite separate from data
 you might be graphing, it would not be unreasonable to have a separate instance
 purely for the purpose of indexing and searching.
 
 Prometheus uses a double-delta encoding scheme for it's internal and on-disk
-data storage. PAA value will not change "smoothely", and are likely to stress
+data storage. PAA value will not change "smoothly", and are likely to stress
 the storage more than a regular time series.
 
 ## Conclusion
 
 PAA is a simple and effective technique for time series indexing and searching.
-I'm satisified that my naive implementation performs well enough that it could
+I'm satisfied that my naive implementation performs well enough that it could
 be used for streaming indexing at scale.
 
