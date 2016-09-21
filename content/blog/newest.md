@@ -251,7 +251,7 @@ representation.
 I make no claim to any real expertise I have gleaned what I could from papers
 written by those far more qualified than I, and applied it with a degree of
 success that could equally be attributable to blind luck. That being said, I
-had fun doing it, and my experience may be intersting, or enlightening, to
+had fun doing it, and my experience may be interesting, or enlightening, to
 others.
 
 ## Conclusion
