@@ -55,7 +55,7 @@ through pages of cacti graphs to locate the floor and port responsible.&lt;/p&gt
 &lt;p&gt;It seemed that it should be possible to find graphs that contained features
 with a passing resemblance to the problematic spike. My manual search was
 really the search to answer the question of &amp;ldquo;Which graph has a spike on it that
-looks a bit like the one on the Internet link?&amp;ldquo;. But go we get a computer to
+looks a bit like the one on the Internet link?&amp;ldquo;. But can we get a computer to
 do this for us?&lt;/p&gt;
 
 &lt;h2 id=&#34;feature-space-reduction&#34;&gt;Feature space reduction&lt;/h2&gt;
