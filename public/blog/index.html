@@ -13,7 +13,7 @@
 <title>
 
 
-      
+     Blog 
 
 </title>
 <link rel="canonical" href="https://tcolgate.github.io/blog/">
@@ -106,306 +106,22 @@
     </div>
 </section>
 
-
-<section class="main post non-narrow zero-top-spacing">
+<section class="main">
     <div class="container">
         <div class="content">
-            <div class="front-matter">
-                <div class="title-container">
-                    <div class="page-heading">
-
-    
-
-</div>
-
-                    <div class="initials"><a href="https://tcolgate.github.io/">tcm</a></div>
-                </div>
-                <div class="meta">
-                    <div class="date" title="Tue Sep 20 2016 00:00:00 UTC">Sep 20, 2016</div>
-                    <div class="reading-time"><div class="middot"></div>9 minutes read</div>
-                </div>
-            </div>
-            <div class="markdown">
+            <div class="page-heading">Blog</div>
+            <ul>
                 
+                <li class="post-item">
+    <div class="meta">Sep 20, 2016</div>
+    <a href="https://tcolgate.github.io/blog/time-series-search-in-prometheus/"><div>Time Series Search in Prometheus</div></a>
+</li>
 
-<p><em>Note:</em>: This post describes an extension to <a href="https://prometheus.io">prometheus</a> that is unlikely to ever make it upstream.</p>
-
-<p>The code implementing the feature can be see in this <a href="https://github.com/prometheus/prometheus/pull/1991/files">Pull Request</a>. If you wish to try it out you can try the following:</p>
-
-<pre><code>$ mkdir -p ${GOPATH}/github/prometheus/
-$ cd ${GOPATH}/github/prometheus/
-$ git clone https://github.com/tcolgate/prometheus.git
-$ cd prometheus
-$ make
-</code></pre>
-
-<h2 id="time-series-indexing">Time Series Indexing</h2>
-
-<p>Traditionally, when we talk about an index for a time-series database, we are
-talking about an index of the metadata. In the case of prometheus, such an
-index would help us locate all the series with certain labels, allowing us to
-quickly query, for example, all the <em>http_requests_total</em> timeseries that
-match a given <em>handler</em> or response <em>code</em>. Whilst that is a worthy topic to
-explore, this article is not about that.</p>
-
-<p>Most of the timeseries databases we are used to dealing with will not attempt
-to index the actual data. It is rare to want to search based on values. This is
-especially true when data is stored using floating point, or is derived from
-fast changing counters. Searching for an exact float64 value is of limited use.
-Even searching specific numbers within a known range is not that useful. Traditional
-indexing methods are just not of much interest for the time series data itself.</p>
-
-<p>I should say up-front that I make no claim to any real expertise jjj
-I have gleaned what I could from papers written by those far more qualified
-than I, and applied it with a degree of success that could equally be
-attributable to blind luck. That being said, I had fun doing it, and my
-experience may be intersting, or enlightening, to others.</p>
-
-<h2 id="finding-signals-in-the-noise">Finding signals in the noise</h2>
-
-<p>Whilst it&rsquo;s rare to want to find a specific value in our data, it&rsquo;s not
-uncommon to with to find correlations between data series. &ldquo;Who is doing
-that?!&ldquo;, is a not uncommon refrain from the desperate systems or network
-administrator. Correlation does not imply causation, but it can get the witch hunt
-off to a good start.</p>
-
-<p>I often found myself in this situation when working as a network administrator
-on a medium sized office and data-center network in a previous role. The total
-estate consisted of several dozen high density switches, totalling a few thousand
-ports. It was not uncommon for a single user monopolise the, relatively small,
-central office Internet pipe. Finding which one of the many 1Gb/s ports was
-originating the 40Mb/s spike was tedious, and usually involved scrolling
-through pages of cacti graphs to locate the floor and port responsible.</p>
-
-<p>It seemed that it should be possible to find graphs that contained features
-with a passing resemblance to the problematic spike. My manual search was
-really the search to answer the question of &ldquo;Which graph has a spike on it that
-looks a bit like the one on the Internet link?&ldquo;. But how to get a computer to
-do this for us?</p>
-
-<h2 id="feature-space-reduction">Feature space reduction</h2>
-
-<p>Unsurprisingly, many greater minds than mine had expelled much effort to solve
-this problem (though, none that I know of, were hunting for rouge BitTorrent
-users).</p>
-
-<p>The answer lies in a set of techniques called Dimensionality Reduction. The key
-is to convert our time series data from it&rsquo;s initial state, we&rsquo;ll call temporal
-space, to something called a Feature Space. Feature Spaces represent features
-of the data over time, rather than the specific data samples themselves. Once
-converted, we effectively reduce the resolution of the data in the feature
-space, allowing us to compare the features, rather than the raw data. Such,
-comparisons can be much &ldquo;fuzzier&rdquo;.</p>
-
-<p>The best known example of a feature-space conversion is the Fourier Transform
-and its variants (DCTs, and wavelet transforms for example). Rather than
-represent the time series data as a series of values of the time domain, these
-tell us which frequencies are present in the data. These frequencies are the
-features.</p>
-
-<p>The broad idea is to convert our time series data into some other form that
-more directly represents the features, then compare those features for the
-similarities we are interested in.  Once we are working in feature space we can
-apply techniques such as Euclidian Distance and Nearest Neighbour searches.</p>
-
-<p>As tantalising as the frequency domain conversion are, it turns out that some
-of their properties  make them less ideal for correlation of spiky network
-traffic. In particular, a small shift of a spike of traffic in the temporal
-space (appearing very slightly earlier or later in one graph from another), can
-result in very different frequency domain data. Small square spikes generally
-don&rsquo;t encode well to frequency domain. Such spikes are common in network
-monitoring data.</p>
-
-<p>The <a href="http://www.cs.ucr.edu/~eamonn/SAX.pdf">SAX</a> project came up with an
-alternative approach which is easy to understand, and very easy to implement.</p>
-
-<h2 id="peace-wise-aggregate-approximation">Peace-wise Aggregate Approximation</h2>
-
-<p>The process is straight forward:</p>
-
-<ul>
-<li>Downsample the data to a convenient number of samples. Typically 6 to 8 are
-enough.</li>
-<li>Normalize this downsampled data (usually <a href="http://jmotif.github.io/sax-vsm_site/morea/algorithm/znorm.html">z-Normalization</a>.</li>
-<li>Quantize the resulting data into a set of ranges (typically 8).</li>
-<li>Assign a letter to each quantized value.</li>
-</ul>
-
-<p>The resulting string encodes the shape of the time series data. Any two time
-series with the same final string encoding will have a similar basic shape.
-The SAX and <a href="http://www.cs.ucr.edu/~eamonn/iSAX_2.0.pdf">ISAX2</a> papers give
-some example values for the quantization bands they found effective.</p>
-
-<p>This is easier to visualize. The example data is blatantly rigged for
-demonstrative purposes. (We assume downsampling has already occurred).</p>
-
-<p>
-<figure >
-    
-        <img src="https://tcolgate.github.io/img/paa/paa.fig1.png" />
-    
-    
-</figure>
-
-
-<figure class="right">
-    
-        <img src="https://tcolgate.github.io/img/paa/paa.fig2.png" />
-    
-    
-</figure>
-
-
-<figure class="right">
-    
-        <img src="https://tcolgate.github.io/img/paa/paa.fig3.png" />
-    
-    
-</figure>
-</p>
-
-<p>For each quantized value we assign a letter, A for the lowest band, H for the
-highest, in the example (rather conveniently), both would encode to
-&ldquo;BBBFGGFE&rdquo;. In practice, many of the spikes, errors, or drop offs in traffic
-result in drop and jumps in traffic that correlate well.</p>
-
-<p>After some experimentation I eventually implemented, and successfully used this
-technique using a tool called
-<a href="https://github.com/tcolgate/lookalike">lookalike</a>, developed for Cacti.</p>
-
-<p>I toyed with ideas for implementing a similar solution for OpenTSDB, and
-InfluxDB, but neither had internals that  made it particularly easy (the latter
-used a map/reduce model internally that proved tricky, the former is written in
-java)</p>
-
-<h2 id="prometheus-implementation">Prometheus Implementation</h2>
-
-<p>Whilst prometheus does not support string data for values, float64 does give us
-plenty of room to pack in a PAA encoding. 8 3-bit samples were generally
-sufficient for a reasonable match in lookalike. We can store 52 bit integers
-exactly in a floa64, which is far more space than the 24-bits we require.</p>
-
-<p>Prometheus is essentially an in-memory time series database with some support
-for spilling out to disk. This has the advantage that all the data is easily
-available when an internal function executes.</p>
-
-<p>Proetheus has no internal support for downsampling, so this needed to be done
-within the function (Lookalike used the inherent downsampling of an RRD file).
-For prometheus I opted to implement
-<a href="http://skemman.is/stream/get/1946/15343/37285/3/SS_MSthesis.pdf">Least-Triangle-Three-Bucket</a>.
-This was largely chosen because it seemed interesting, and there is a somewhat
-&ldquo;visual&rdquo; component to what PAA is trying to do. In practice, the technique is
-expensive and simpler methods should be tried for comparison.</p>
-
-<p>The process is adjusted as follows:</p>
-
-<ul>
-<li>LTTB Downsample the data to 8 samples.</li>
-<li>z-Normalize this downsampled data.</li>
-<li>Quantize the resulting data.</li>
-<li>Take each 3 bit sample and pack into a sinlge integer</li>
-<li>Convert that integer to a float64</li>
-</ul>
-
-<h2 id="usage">Usage</h2>
-
-<p>The paa() function takes a range vector and returns an instant vector. The actual value
-returned is not of much use directly.</p>
-
-<p>Using the function is rather clumsy. By convention, prometheus functions that
-alter the meaning of the data they process remove <strong>name</strong>, this makes
-determining what has matched a bit tricky (label_replace tricks can be used to
-store the original name on a label, I&rsquo;ve left such magic out of the examples
-for the sake of clarity).</p>
-
-<p>To calculate a single paa for the all time series for last 15 minutes:</p>
-
-<p><code>paa({__name__=~&quot;.+&quot;}[15m])</code></p>
-
-<p>If we want to find all time series that correlate with our network traffic on eth0:</p>
-
-<pre><code>paa({__name__=~&quot;.+&quot;}[15m]) ==
-paa(task:node_network_transmit_bytes:rate1m{device=&quot;etho&quot;}[15m])
-</code></pre>
-
-<p>We can establish a recording rules that will track the PAA for a 15m window
-of etwork traffic:</p>
-
-<pre><code>task:node_network_receive_bytes:paa15m_rate1m =
-  paa(task:node_network_receieve_bytes:rate1m[15m])
-task:node_network_transmit_bytes:paa15m_rate1m =
-  paa(task:node_network_transmit_bytes:rate1m[15m])
-</code></pre>
-
-<p>If we want to find all network interfaces trasmitting traffic that correlates
-strong with traffic received at myhost eth1):</p>
-
-<pre><code>task:node_network_transmit_bytes:paa15m_rate1m ==
-task:node_network_receive_bytes:paa15m_rate1m{instane=&quot;myhost&quot;,device=&quot;eth1&quot;}
-</code></pre>
-
-<p>Since this is using pre-recorded values, the match does not need do do any calculation and
-should therefore be very fast indeed.</p>
-
-<h2 id="performance">Performance</h2>
-
-<p>Prometheus has excellent support internally for testing and benchmarking of its
-functions. Adding a couple of benchmarks shows paa() is well within the bounds of what is reasonable
-for a prometheus function (though it is possible that the data generated by the benchmark suite
-is being very kind here).</p>
-
-<pre><code>$ go test -v -bench=. -run=XXX 2&gt; /dev/null                                            paa ]
-BenchmarkHoltWinters4Week5Min-4             3000            369268 ns/op          986205 B/op        105 allocs/op
-BenchmarkHoltWinters1Week5Min-4            10000            102932 ns/op          207921 B/op         89 allocs/op
-BenchmarkHoltWinters1Day1Min-4             20000             76443 ns/op          146480 B/op         88 allocs/op
-BenchmarkChanges1Day1Min-4                 30000             54977 ns/op          109584 B/op         83 allocs/op
-BenchmarkPAA1Day1Min-4                     20000             61826 ns/op          109768 B/op         88 allocs/op
-BenchmarkPAA15Min5Sec-4                   100000             17012 ns/op           14794 B/op         84 allocs/op
-PASS
-ok      github.com/prometheus/prometheus/promql 8.941s
-
-</code></pre>
-
-<h2 id="problems">Problems</h2>
-
-<p>The code does not gracefully handle NaN or Inf values in time series. Lookalike
-catered for this by adding an additional letter to the PAA representation
-that was used if a time series had no values in a given period. The
-downsampling function would need adjusting to take this into account, and the
-integer representation would need an extra bit per sample to allow such a
-representation.</p>
-
-<p>In any sufficiently large environment, simple correlation will be fairly
-common.</p>
-
-<p>The PAA itself is relatively hard work to calculate. In a large environment,
-calculating a PAA in a recording rule for a large number of time series will
-probably require considerable extra CPU, compared to typical rate or aggregate.
-However, since the usage and nature of the result is quite separate from data
-you might be graphing, it would not be unreasonable to have a separate instance
-purely for the purpose of indexing and searching.</p>
-
-<p>Prometheus uses a double-delta encoding scheme for it&rsquo;s internal and on-disk
-data storage. PAA value will not change &ldquo;smoothly&rdquo;, and are likely to stress
-the storage more than a regular time series.</p>
-
-<h2 id="conclusion">Conclusion</h2>
-
-<p>PAA is a simple and effective technique for time series indexing and searching.
-I&rsquo;m satisfied that my naive implementation performs well enough that it could
-be used for streaming indexing at scale.</p>
-
-                <br>
-                <p><a href="https://tcolgate.github.io/blog/">Back to posts</a></p>
-            </div>
-            <br>
-            <div class="disqus">
                 
-            </div>
+            </ul>
         </div>
     </div>
 </section>
-
 
 
 <script type="text/javascript">
@@ -431,4 +147,5 @@ try {
 
 </body>
 </html>
+
 
