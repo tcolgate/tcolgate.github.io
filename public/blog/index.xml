@@ -298,6 +298,8 @@ $ git clone https://github.com/tcolgate/Prometheus.git
 $ cd Prometheus
 $ make
 &lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(Many thanks to Brian Brazil and Julius Volz for reviewing this post)&lt;/p&gt;
 </description>
     </item>
     

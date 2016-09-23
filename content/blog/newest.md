@@ -272,4 +272,5 @@ $ cd Prometheus
 $ make
 ```
 
+(Many thanks to Brian Brazil and Julius Volz for reviewing this post)
 
