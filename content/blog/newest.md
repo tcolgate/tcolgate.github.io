@@ -4,19 +4,19 @@ date: "2016-09-20"
 description: "This post describes an experiment in extending Prometheus to support time searching matching"
 draft: false
 categories:
-    - "prometheus"
+    - "Prometheus"
     - "cacti"
     - "fun"
     - "timeseries"
 ---
 
-*Note:*: This post describes an extension to [prometheus](https://prometheus.io) that is unlikely to ever make it upstream,
+*Note:* This post describes an extension to [Prometheus](https://Prometheus.io) that is unlikely to ever make it upstream,
 and definitely not in its current form.
 
 ## Time Series Indexing
 
 When we talk about an index for a time-series database, we are usually
-talking about an index of the metadata. In the case of prometheus, such an
+talking about an index of the metadata. In the case of Prometheus, such an
 index would help us locate all the series with certain labels, allowing us to
 quickly query, for example, all the _http\_requests\_total_ timeseries that
 match a given _handler_ or response _code_. Whilst that is a worthy topic to
@@ -32,7 +32,7 @@ indexing methods are just not of much interest for the time series data itself.
 ## Finding signals in the noise
 
 Whilst it's rare to want to find a specific value in our data, it's not
-uncommon to with to find correlations between time-series. "Who is doing
+uncommon to want to find correlations between time-series. "Who is doing
 that?!", is a not uncommon refrain from the desperate systems or network
 administrator. Correlation does not imply causation, but it can get the witch hunt
 off to a good start.
@@ -40,7 +40,7 @@ off to a good start.
 I often found myself in this situation when working as a network administrator
 on a medium sized office and data-center network in a previous role. The total
 estate consisted of several dozen high density switches, totalling a few thousand
-ports. It was not uncommon for a single user monopolise the, relatively small,
+ports. It was not uncommon for a single user to monopolise the, relatively small,
 central office Internet pipe. Finding which one of the many 1Gb/s ports was
 originating the 40Mb/s spike was tedious, and usually involved scrolling
 through pages of cacti graphs to locate the floor and port responsible.
@@ -53,18 +53,18 @@ do this for us?
 
 ## Feature space reduction
 
-Unsurprisingly, many greater minds than mine had expelled much effort to solve
+Unsurprisingly, many greater minds than mine had expended much effort to solve
 this problem (though, none that I know of, were hunting for rouge BitTorrent
 users).
 
 The answer lies in a set of techniques called Dimensionality Reduction. The key
-is to convert our time series data from it's initial state, we'll call temporal
-space, to something called a Feature Space. Feature Spaces represent features
-of the data, rather than the specific data samples themselves. Once
+is to convert our time series data from its initial state, which we'll call
+temporal space, to something called a Feature Space. Feature Spaces represent
+features of the data, rather than the specific data samples themselves. Once
 converted, we effectively reduce the resolution of the data in the feature
 space, allowing us to compare the features, rather than the raw data. Such,
-comparisons can be much "fuzzier" than attempts to search for pattterns in
-raw data.
+comparisons can be much "fuzzier" than attempts to search for pattterns in raw
+data.
 
 The best known example of a feature-space conversion is the Fourier Transform
 and its variants (DCTs, and wavelet transforms for example). Rather than
@@ -78,7 +78,7 @@ similarities we are interested in.  Once we are working in feature space we can
 apply techniques such as Euclidian Distance and Nearest Neighbour searches, to
 locate other series whose data has similar features to ours.
 
-As tantalising as the frequency domain conversion are, it turns out that some
+As tantalising as the frequency domain conversions are, it turns out that some
 of their properties  make them less ideal for correlation of spiky network
 traffic. In particular, a small shift of a spike of traffic in the temporal
 space (appearing very slightly earlier or later in one graph from another), can
@@ -89,7 +89,7 @@ monitoring data.
 The [SAX](http://www.cs.ucr.edu/~eamonn/SAX.pdf) project came up with an
 alternative approach which is easy to understand, and very easy to implement.
 
-## Peace-wise Aggregate Approximation
+## Piece-wise Aggregate Approximation
 
 The process is straight forward:
 
@@ -120,14 +120,14 @@ After some experimentation I eventually implemented, and successfully used this
 technique using a tool called
 [lookalike](https://github.com/tcolgate/lookalike), developed for Cacti.
 
-I toyed with ideas for implementing a similar solution for OpenTSDB, and
-InfluxDB, but neither had internals that  made it particularly easy (the latter
+I toyed with ideas for implementing a similar solution for OpenTSDB and
+InfluxDB, but neither had internals that made it particularly easy (the latter
 used a map/reduce model internally that proved tricky, the former is written in
-java)
+java).
 
 ## Prometheus Implementation
 
-Whilst prometheus does not support string data for values, float64 does give us
+Whilst Prometheus does not support string data for values, float64 does give us
 plenty of room to pack in a PAA encoding. 8 3-bit samples were generally
 sufficient for a reasonable match in lookalike. We can store 52 bit integers
 exactly in a float64, which is far more space than the 24-bits we require.
@@ -136,9 +136,9 @@ Prometheus is essentially an in-memory time series database with support
 for spilling out to disk. This has the advantage that all the data is easily
 available when an internal function executes.
 
-Proetheus has no internal support for downsampling, so this needed to be done
+Prometheus has no internal support for downsampling, so this needed to be done
 within the function (Lookalike used the inherent downsampling of an RRD file).
-For prometheus I opted to implement
+For Prometheus I opted to implement
 [Least-Triangle-Three-Bucket](http://skemman.is/stream/get/1946/15343/37285/3/SS_MSthesis.pdf).
 This was largely chosen because it seemed interesting, and there is a somewhat
 "visual" component to what PAA is trying to do. LTTB attempts to maintain the visual
@@ -158,25 +158,26 @@ The process is PAA adjusted as follows:
 The paa() function takes a range vector and returns an instant vector. The actual value
 returned is not of much use directly.
 
-Using the function is rather clumsy. By convention, prometheus functions that
-alter the meaning of the data they process remove name, this makes
+Using the function is rather clumsy. By convention, Prometheus functions that
+alter the meaning of the data they process remove the metric name, which makes
 determining what has matched a bit tricky (label\_replace tricks can be used to
 store the original name on a label, I've left such magic out of the examples
 for the sake of clarity).
 
-To calculate a single paa for the all time series for last 15 minutes:
+To calculate a single PAA for the all time series for the last 15 minutes:
 
 ``` paa({__name__=~".+"}[15m]) ```
 
 If we want to find all time series that correlate with our network traffic on eth0:
 
 ```
-paa({__name__=~".+"}[15m]) ==
-paa(task:node_network_transmit_bytes:rate1m{device="etho"}[15m])
+paa({__name__=~".+"}[15m])
+==
+paa(task:node_network_transmit_bytes:rate1m{device="eth0"}[15m])
 ```
 
-We can establish a recording rules that will track the PAA for a 15m window
-of etwork traffic:
+We can establish recording rules that will track the PAA for a 15m window
+of network traffic:
 
 ```
 task:node_network_receive_bytes:paa15m_rate1m =
@@ -185,30 +186,31 @@ task:node_network_transmit_bytes:paa15m_rate1m =
   paa(task:node_network_transmit_bytes:rate1m[15m])
 ```
 
-If we want to find all network interfaces trasmitting traffic that correlates
+If we want to find all network interfaces transmitting traffic that correlates
 strongly with traffic received at myhost eth1):
 
 ```
-task:node_network_transmit_bytes:paa15m_rate1m ==
-task:node_network_receive_bytes:paa15m_rate1m{instane="myhost",device="eth1"}
+task:node_network_transmit_bytes:paa15m_rate1m
+==
+task:node_network_receive_bytes:paa15m_rate1m{instance="myhost",device="eth1"}
 ```
 
 Since this is using pre-recorded values, the match does not need do do any calculation and
 should therefore be very fast indeed.
 
-A prometheus range_query over a time space around the point of interest should highlight all
+A Prometheus query\_range over a time space around the point of interest should highlight all
 series which have matched the PAA over a period of time.
 
-To be truely useful in practice more direct support for PAA would need adding to prometheus.
+To be truely useful in practice more direct support for PAA would need adding to Prometheus.
 
 ## Performance
 
 Prometheus has excellent support internally for testing and benchmarking of its
 functions. Adding a couple of benchmarks shows paa() is well within the bounds of what is reasonable
-for a prometheus function (though it is possible that the data generated by the benchmark suite
+for a Prometheus function (though it is possible that the data generated by the benchmark suite
 is being very kind here).
 
-I have left left the results of the other prometheus Benchmark functions in place for comparison purposes.
+I have left the results of the other Prometheus Benchmark functions in place for comparison purposes.
 
 ```
 $ go test -v -bench=. -run=XXX 2> /dev/null                                            paa ]
@@ -219,26 +221,26 @@ BenchmarkChanges1Day1Min-4                 30000             54977 ns/op        
 BenchmarkPAA1Day1Min-4                     20000             61826 ns/op          109768 B/op         88 allocs/op
 BenchmarkPAA15Min5Sec-4                   100000             17012 ns/op           14794 B/op         84 allocs/op
 PASS
-ok      github.com/prometheus/prometheus/promql 8.941s
+ok      github.com/Prometheus/Prometheus/promql 8.941s
 
 ```
 
 ## Problems
 
 In any sufficiently large environment, simple correlation will be fairly
-common. I found it useful in a system with hundres of thousands of time-series,
+common. I found it useful in a system with hundreds of thousands of time-series,
 it may not prove so useful in environments with millions of time series. It seems
 likely that this is heavily dependent on the nature of the data being indexed.
 
 The PAA itself is relatively hard work to calculate. In a large environment,
 calculating a PAA in a recording rule for a large number of time series will
-probably require considerable extra CPU, compared to typical rate or aggregate.
+probably require considerable extra CPU, compared to typical rates or aggregates.
 However, since the usage and nature of the result is quite separate from data
 you might be graphing, it would not be unreasonable to have a separate instance
 purely for the purpose of indexing and searching.
 
-Prometheus uses a double-delta encoding scheme for it's internal and on-disk
-data storage. PAA value will not change "smoothly", and are likely to stress
+Prometheus uses a double-delta encoding scheme for its internal and on-disk
+data storage. PAA values will not change "smoothly", and are likely to stress
 the storage more than a regular time series.
 
 The code does not gracefully handle NaN or Inf values in time series. Lookalike
@@ -248,11 +250,11 @@ downsampling function would need adjusting to take this into account, and the
 integer representation would need an extra bit per sample to allow such a
 representation.
 
-I make no claim to any real expertise I have gleaned what I could from papers
-written by those far more qualified than I, and applied it with a degree of
-success that could equally be attributable to blind luck. That being said, I
-had fun doing it, and my experience may be interesting, or enlightening, to
-others.
+I make no claim to any real expertise in this topic. I have gleaned what I
+could from papers written by those far more qualified than I, and applied it
+with a degree of success that could equally be attributable to blind luck. That
+being said, I had fun doing it, and my experience may be interesting, or
+enlightening, to others.
 
 ## Conclusion
 
@@ -260,13 +262,13 @@ PAA is a simple and effective technique for time series indexing and searching.
 I'm satisfied that my naive implementation demonstrates that near-time indexing
 of streaming time-series data is practical.
 
-The code implementing the feature can be see in this [Pull Request](https://github.com/prometheus/prometheus/pull/1991/files). If you wish to try it out you can try the following:
+The code implementing the feature can be see in this [Pull Request](https://github.com/Prometheus/Prometheus/pull/1991/files). If you wish to try it out you can try the following:
 
 ```
-$ mkdir -p ${GOPATH}/github/prometheus/
-$ cd ${GOPATH}/github/prometheus/
-$ git clone https://github.com/tcolgate/prometheus.git
-$ cd prometheus
+$ mkdir -p ${GOPATH}/github/Prometheus/
+$ cd ${GOPATH}/github/Prometheus/
+$ git clone https://github.com/tcolgate/Prometheus.git
+$ cd Prometheus
 $ make
 ```
 
