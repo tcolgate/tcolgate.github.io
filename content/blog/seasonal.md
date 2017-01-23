@@ -105,7 +105,7 @@ the difference between our current rate of events, and the previous days, and
 perhaps pick a simple threshold again.
 
 However, things become more interesting if we take several offsets and collect
-them together. In prometheus we can achieve this with the following rule.
+them together. In Prometheus we can achieve this with the following rule.
 
 ```
  job_offset:events:offset_rate1h{offset="1d"} =
@@ -166,10 +166,12 @@ reality this is unlikely to be the case, but may be a reasonable estimation.
 
 More traffic sample can help us tighten the our prediction. There is a further
 problem however. Just as our morning traffic and evening traffic are different,
-there are likely to be similar differences between individual days. Few of us
-feel the same on a Monday morning as we do on a saturday evening, and that shows
-up in our data.  We may see more correlation if we choose similar hours in each
-week, rather than simply each day.
+there are likely to be similar differences between individual days.If our
+weekend traffic differs in volume or shape from our weekday traffic, our
+calculation are off. Our alerts are likely to fire on Saturday, and fail to fire
+on a Monday morning. (This is caused by our sample points not actually being
+from a normal distribution.)   We may see more correlation if we choose similar
+hours in each week, rather than simply each day.
 
 One limitation you may run into with Prometheus, if trying to extend too far
 into the past, is with its retention periods. Prometheus is designed for
