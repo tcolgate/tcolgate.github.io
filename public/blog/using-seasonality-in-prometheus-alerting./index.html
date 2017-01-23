@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Monitoring, SRE, and Miscellany">
+
+<base href="https://tcolgate.github.io/">
+<title>
+
+
+     Using Seasonality in Prometheus alerting. 
+
+</title>
+<link rel="canonical" href="https://tcolgate.github.io/blog/using-seasonality-in-prometheus-alerting./">
+
+
+<script type="text/javascript">
+    var baseURL = 'https:\/\/tcolgate.github.io\/';
+    var host = baseURL.substring(0, baseURL.length - 1).replace(/\//g, '');
+    if ((host === window.location.host) && (window.location.protocol !== 'https:')) {
+        window.location.protocol = 'https:';
+    }
+</script>
+
+
+
+
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/default.min.css">
+
+
+
+
+
+<link rel="stylesheet" href="https://tcolgate.github.io/css/reset.css">
+<link rel="stylesheet" href="https://tcolgate.github.io/css/pygments.css">
+<link rel="stylesheet" href="https://tcolgate.github.io/css/main.css">
+
+
+    <link rel="stylesheet" href="https://tcolgate.github.io/css/override.css">
+
+
+
+
+
+<link rel="shortcut icon"
+
+    href="https://tcolgate.github.io/img/leaf.ico"
+
+>
+
+
+
+</head>
+
+
+<body lang="en">
+
+<section class="header"> 
+    <div class="container">
+        <div class="content">
+            <a href="https://tcolgate.github.io/"><div class="name">Tristan Colgate-McFarlane</div></a>
+            <nav>
+                <ul>
+                    <a href="https://tcolgate.github.io/blog/"><li>Blog</li></a>
+                    <a href="https://tcolgate.github.io/about/"><li>About</li></a>
+                    <a href="https://tcolgate.github.io/code/"><li>Code</li></a>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="icons">
+    <div class="container">
+        <div class="content">
+
+        
+            <a href="//github.com/tcolgate" target="_blank">
+                <i class="icon ion-social-github"></i>
+            </a>
+        
+        
+        
+            <a href="//twitter.com/t_colgate" target="_blank">
+                <i class="icon ion-social-twitter"></i>
+            </a>
+        
+
+        
+            <a href="//linkedin.com/in/tristan-colgate-762b052" target="_blank">
+                <i class="icon ion-social-linkedin"></i>
+            </a>
+        
+
+        
+
+        
+
+        
+        </div>
+    </div>
+</section>
+
+
+<section class="main post non-narrow zero-top-spacing">
+    <div class="container">
+        <div class="content">
+            <div class="front-matter">
+                <div class="title-container">
+                    <div class="page-heading">
+
+    Using Seasonality in Prometheus alerting.
+
+</div>
+
+                    <div class="initials"><a href="https://tcolgate.github.io/">tcm</a></div>
+                </div>
+                <div class="meta">
+                    <div class="date" title="Mon Jan 23 2017 00:00:00 UTC">Jan 23, 2017</div>
+                    <div class="reading-time"><div class="middot"></div>7 minutes read</div>
+                </div>
+            </div>
+            <div class="markdown">
+                
+
+<p><em>Note:</em> This was originally posted at&hellip;.</p>
+
+<p>In this post, we will show a worked example of building a Prometheus alert for a
+typical user facing service.  Introduction At Qubit we have recently completely
+a migration from our legacy Shinken and Graphite based monitoring to a system
+built around Prometheus, a modern time series database.</p>
+
+<p>Prometheus has many features that are particularly well suited to our current
+infrastructure. To pick a few at random,</p>
+
+<ul>
+<li>Works well in containerized environments.</li>
+<li>Exporters are easy to write, and the existing client libraries are pleasant toU= use.</li>
+<li>It was easy to get started, and has proved very adaptable to out more extreme use cases.</li>
+</ul>
+
+<p>One of it&rsquo;s most appealing features is the rich query language. Once you are
+over the initial learning curve, a world of possibilities awaits.</p>
+
+<h2 id="living-with-your-errors">Living with your errors.</h2>
+
+<p>In high traffic environments, traditional check and threshold based alerting
+begins to cause pain. Errors are a simple fact of life. For clients traversing
+the internet, especially mobile clients, possibly travelling at high speed
+through rolling green hills, timeouts are unavoidable. Anyone with a server
+directly connected to the Internet will know that not everyone is polite enough
+to send you perfectly formed HTTP request of the kind you intended to receive.
+As scale increases, failures within your infrastructure eventually become
+equally unavoidable.</p>
+
+<p>If we have to live with a background of alerts, we need methods for determining
+when we should be worried, and when we should not. Fortunately statisticians
+have been hard at work for a great many year,creating the mathematical tools we
+need to achieve just that.</p>
+
+<p>Imagine a simple service receiving traffic from the internet. If we have a
+consistent rate of events, spotting anomalies should not be too difficult.  We
+could assume our traffic will remain within a fixed margin of this, and alert
+when levels go below or above the average level of traffic we have seen
+recently.</p>
+
+
+<figure >
+    
+        <img src="https://tcolgate.github.io/img/seasonal/flat-bars-long.png" />
+    
+    
+</figure>
+
+
+<p>Unfortunately, any service interacting with human will be very unlikely to see
+traffic like this. Traffic isolated to one country will often show a &ldquo;Camels
+Hump&rdquo; shape. Working out why you traffic is the shape it is can be fun, and
+quite enlightening.</p>
+
+
+<figure >
+    
+        <img src="https://tcolgate.github.io/img/seasonal/camel.png" />
+    
+    
+</figure>
+
+
+<p>On a global scale things do even out a little, but humans  are not evenly
+distributed across the planet (distribution of land, and distribution of wealth
+over the surface of the earth have seen to that). People will talk of traffic
+following the sun, with peaks of traffic as each major region comes on line.</p>
+
+<p>These factors make it hard for simple threshold based alerting to work. We
+cannot merely give a minimum and maximum level. No one set of thresholds will
+work reliably throughout the entire day.  The Changing Seasons</p>
+
+<p>Rather than ask what the level of traffic is with respect to previous traffic
+today, we can instead ask if our expected traffic at this time is reasonable
+relative to some previous point in time that we expect to have approximately the
+same traffic levels. In statistics, this is termed &ldquo;Seasonality&rdquo;. In much the
+same way that we consider the weather in Winter to to be similar from year to
+year, we can find the same similarity between traffic levels in our system over
+different time ranges.</p>
+
+<p>The obvious choice is to compare our traffic today with our traffic 24 hours
+ago. We can do this in Prometheus using the offset keyword. Let us assume we
+have a rule in place to create an aggregate of our average per-second rate of
+events of the previous hour.</p>
+
+<p>task:events:rate1h = rate(events[1h])
+   job:events:rate1h =
+    sum by (job) (task:events:rate1h)</p>
+
+<p>We could create a rule to track the rate of events from yesterday, as follows.:</p>
+
+<p>job_offset:events:offset1d_rate1h = job:events:rate1h offset 1d</p>
+
+<p>This can be very useful indeed, and give you a very quick &ldquo;at a glance&rdquo;
+indication if things are more or less at the right levels. We could now monitor
+the difference between our current rate of events, and the previous days, and
+perhaps pick a simple threshold again.</p>
+
+<p>However, things become more interesting if we take several offsets and collect
+them together. In prometheus we can achieve this with the following rule.</p>
+
+<p>job_offset:events:offset_rate1h{offset=&ldquo;1d&rdquo;} =
+  job:events:rate1h offset 1d
+ job_offset:events:offset_rate1h{offset=&ldquo;2d&rdquo;} =
+  job:events:rate1h offset 2d
+ job_offset:events:offset_rate1h{offset=&ldquo;3d&rdquo;} =
+  job:events:rate1h offset 3d</p>
+
+<p>Building up these historical views of our data can become quite mesmerizing. But
+beyond produce pretty graphs, we can put this to more direct use. If each days
+samples are similar, we can do the following.</p>
+
+<ul>
+<li>Take the average of the rates of events for each of our previous days</li>
+<li>Calculate the Standard Deviation between the previous days rates of events</li>
+</ul>
+
+<p>Standard deviation gives us a measure of how much we can expect other days to
+vary from the 3 days worth of samples we have.[a][b] We can the calculate upper
+and lower bounds  for what is reasonable to expect, and alert if we move beyond
+those levels.</p>
+
+<p>Effectively we are dynamically creating out thresholds. In Prometheus we do this as follows:</p>
+
+<p>job:events:mean_offset_rate1h =
+   avg without (offset) (job_offset:events:offset_rate1h)
+ job:events:stddev_offset_rate1h =
+  stddev without (offset) (job_offset:events:offset_rate1h)
+ job:events_stddeviations:rate1h =
+  (job:events:rate1h - job:events:mean_offset_rate1h) /
+  job:events:stddev_offset_rate1h</p>
+
+<p>And finally we create an alert to inform us when we&rsquo;ve moved beyond our
+threshold. We will suggest that if our traffic is between, ±3 standard[c][d]
+deviations from our previous levels things are looking fine. If we move
+outside of those levels, we will raise an alert.</p>
+
+<p>Note: Whether or not this is reliable enough to be considered worthy of paging
+someone is really down to your particular levels and shape of traffic.</p>
+
+<p>ALERT EventLevelUnexecpted
+   IF abs(job:events_stddeviations:rate1h) &gt; 3
+   FOR 1h
+   LABELS { severity = &ldquo;medium&rdquo; }
+   ANNOTATIONS {
+     description = &ldquo;Arrival of  events is out by {{ $value }} standard deviations&rdquo;,
+   }</p>
+
+<h2 id="what-is-normal">What is normal?</h2>
+
+<p>If the underlying data samples conform to a normal distribution ,3 standard deviations would suggest a 99.7% chance that we are experiencing a problem. In reality this is unlikely to be the case, but may be a reasonable estimation.</p>
+
+<p>More traffic sample can help us tighten the our prediction. There is a further problem however. Just as our morning traffic and evening traffic are different, there are likely to be similar differences between individual days. Few of us feel the same on a Monday morning as we do on a saturday evening, and that shows up in our data.  We may see more correlation if we choose similar hours in each week, rather than simply each day.</p>
+
+<p>One limitation you may run into with Prometheus, if trying to extend too far into
+the past, is with its retention periods. Prometheus is designed for alerting
+rather than data mining. The default retention period is 2 weeks. In very dynamic
+Environments it is often necessary to reduce this further.</p>
+
+<p>This would seem to limit the historical series we can query, but we can perform
+a simple trick to &ldquo;remember&rdquo;, the old data for a specific set of queries.</p>
+
+<p>job_offset:events:offset_rate1h{offset=&ldquo;1w&rdquo;} =
+   job:events:rate1h offset 1w
+ job_offset:events:offset_rate1h{offset=&ldquo;2w&rdquo;} =
+   job_offset:events:offset_rate1h{offset=&ldquo;1w&rdquo;} offset 1w
+ job_offset:events:offset_rate1h{offset=&ldquo;3w&rdquo;} =
+   job_offset:events:offset_rate1h{offset=&ldquo;2w&rdquo;} offset 1w</p>
+
+<p>This way, we can now produce an estimate based on 3 values of the last
+3 weeks, even though our server may only actually holds 8 days worth of data.
+It is important to note that you should not mix these 1w samples in with your
+1d samples above. The mean and stddev rules from above should be adjust, perhaps
+as follows:</p>
+
+<p>job:events:mean_offset1d_rate1h = avg without (offset) (job_offset:events:offset_rate1h{offset=~&ldquo;.d&rdquo;})
+ job:events:mean_offset1w_rate1h = avg without (offset) (job_offset:events:offset_rate1h{offset=~&ldquo;.w&rdquo;})
+ job:events:stddev_offset1d_rate1h = stddev without (offset) (job_offset:events:offset_rate1h{offset=~&ldquo;.d&rdquo;})
+ job:events:stddev_offset1w_rate1h = stddev without (offset) (job_offset:events:offset_rate1h{offset=~&ldquo;.w&rdquo;})</p>
+
+<p>Alternatively we could store these with as one metric with a label. Adjusting
+the final calculation and alert are left as an educational exercise for the
+Reader.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Prometheus provides a powerful set of tools to help up build alerts based on a
+deeper understanding of our data than simple thresholds. This post has explored
+one such technique.</p>
+
+<p>For those interested in more on this topic, I highly recommend this video below
+(and the related Better Living Through Statistics talks), by Jamie Wilkinson,
+and his excellent contributions to O&rsquo;Reilly&rsquo;s Site Reliability Engineering book.</p>
+
+<p>Those interested in a more rigorous discussion of the maths can find many great
+books to choose from, but could do worse than Statistics in a Nutshell</p>
+
+<p>Look out for future posts discussing how we&rsquo;re leveraging Prometheus at Qubit</p>
+
+                <br>
+                <p><a href="https://tcolgate.github.io/blog/">Back to posts</a></p>
+            </div>
+            <br>
+            <div class="disqus">
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+    var pageTracker = _gat._getTracker("XYZ");
+    pageTracker._trackPageview();
+} catch(err) {}
+</script>
+
+
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js"></script>
+
+  <script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+  </script>
+
+
+
+</body>
+</html>
+
