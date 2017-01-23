@@ -13,7 +13,12 @@ categories:
 *Note:* This was originally posted at....
 
 In this post, we will show a worked example of building a Prometheus alert for a
-typical user facing service.  Introduction At Qubit we have recently completely
+typical user facing service.
+
+## Introduction
+
+At Qubit we have recently completely
+
 a migration from our legacy Shinken and Graphite based monitoring to a system
 built around Prometheus, a modern time series database.
 
@@ -21,10 +26,10 @@ Prometheus has many features that are particularly well suited to our current
 infrastructure. To pick a few at random,
 
 * Works well in containerized environments.
-* Exporters are easy to write, and the existing client libraries are pleasant toU= use.
+* Exporters are easy to write, and the existing client libraries are pleasant to use.
 * It was easy to get started, and has proved very adaptable to out more extreme use cases.
 
-One of it's most appealing features is the rich query language. Once you are
+One of its most appealing features is the rich query language. Once you are
 over the initial learning curve, a world of possibilities awaits.
 
 ## Living with your errors.
@@ -51,7 +56,7 @@ recently.
 
 {{< figure src="/img/seasonal/flat-bars-long.png" >}}
 
-Unfortunately, any service interacting with human will be very unlikely to see
+Unfortunately, any service interacting with humans will be very unlikely to see
 traffic like this. Traffic isolated to one country will often show a "Camels
 Hump" shape. Working out why you traffic is the shape it is can be fun, and
 quite enlightening.
@@ -65,13 +70,15 @@ following the sun, with peaks of traffic as each major region comes on line.
 
 These factors make it hard for simple threshold based alerting to work. We
 cannot merely give a minimum and maximum level. No one set of thresholds will
-work reliably throughout the entire day.  The Changing Seasons
+work reliably throughout the entire day.
+
+## The Changing Seasons
 
 Rather than ask what the level of traffic is with respect to previous traffic
 today, we can instead ask if our expected traffic at this time is reasonable
 relative to some previous point in time that we expect to have approximately the
 same traffic levels. In statistics, this is termed "Seasonality". In much the
-same way that we consider the weather in Winter to to be similar from year to
+same way that we consider the weather in winter to to be similar from year to
 year, we can find the same similarity between traffic levels in our system over
 different time ranges.
 
@@ -89,7 +96,7 @@ events of the previous hour.
 We could create a rule to track the rate of events from yesterday, as follows.:
 
 ```
-  job_offset:events:offset1d_rate1h = job:events:rate1h offset 1d
+  job:events:offset1d_rate1h = job:events:rate1h offset 1d
 
 ```
 This can be very useful indeed, and give you a very quick "at a glance"
@@ -121,15 +128,15 @@ vary from the 3 days worth of samples we have.[a][b] We can the calculate upper
 and lower bounds  for what is reasonable to expect, and alert if we move beyond
 those levels. 
 
-Effectively we are dynamically creating out thresholds. In Prometheus we do this as follows:
+Effectively we are dynamically creating our thresholds. In Prometheus we do this as follows:
 
 ```
- job:events:mean_offset_rate1h =
+ job:events:avg_offset_rate1h =
    avg without (offset) (job_offset:events:offset_rate1h)
  job:events:stddev_offset_rate1h =
   stddev without (offset) (job_offset:events:offset_rate1h)
- job:events_stddeviations:rate1h =
-  (job:events:rate1h - job:events:mean_offset_rate1h) / 
+ job:events:normalised_offset_rate1h =
+  (job:events:rate1h - job:events:avg_offset_rate1h) / 
   job:events:stddev_offset_rate1h 
 	
 ```
@@ -143,7 +150,7 @@ someone is really down to your particular levels and shape of traffic.
 
 ```
   ALERT EventLevelUnexecpted 
-   IF abs(job:events_stddeviations:rate1h) > 3
+   IF abs(job:events:normalised_offset_rate1h) > 3
    FOR 1h
    LABELS { severity = "medium" }
    ANNOTATIONS {
@@ -182,14 +189,14 @@ a simple trick to "remember", the old data for a specific set of queries.
 ```
 
 This way, we can now produce an estimate based on 3 values of the last 3 weeks,
-even though our server may only actually holds 8 days worth of data.  It is
+even though our server may only actually hold 8 days worth of data.  It is
 important to note that you should not mix these 1w samples in with your 1d
-samples above. The mean and stddev rules from above should be adjust, perhaps
+samples above. The avg and stddev rules from above should be adjusted, perhaps
 as follows:
 
 ```
- job:events:mean_offset1d_rate1h = avg without (offset) (job_offset:events:offset_rate1h{offset=~".d"})
- job:events:mean_offset1w_rate1h = avg without (offset) (job_offset:events:offset_rate1h{offset=~".w"})
+ job:events:avg_offset1d_rate1h = avg without (offset) (job_offset:events:offset_rate1h{offset=~".d"})
+ job:events:avg_offset1w_rate1h = avg without (offset) (job_offset:events:offset_rate1h{offset=~".w"})
  job:events:stddev_offset1d_rate1h = stddev without (offset) (job_offset:events:offset_rate1h{offset=~".d"})
  job:events:stddev_offset1w_rate1h = stddev without (offset) (job_offset:events:offset_rate1h{offset=~".w"})
 ```
