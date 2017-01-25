@@ -158,6 +158,8 @@ someone is really down to your particular levels and shape of traffic.
    } 
 ```
 
+{{< figure src="/img/seasonal/with-bars.png" >}}
+
 ## What is normal?
 
 If the underlying data samples conform to a normal distribution ,3 standard
