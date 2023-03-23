@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Monitoring, SRE, and Miscellany">
+
+<base href="https://tcolgate.github.io/">
+<title>
+
+
+     Kubernetes Up &amp; Integrated — Secrets &amp; Configuration (Qubit Eng Blog) 
+
+</title>
+<link rel="canonical" href="https://tcolgate.github.io/blog/kubernetes-up-integrated-secrets-configuration-qubit-eng-blog/">
+
+
+<script type="text/javascript">
+    var baseURL = 'https:\/\/tcolgate.github.io\/';
+    var host = baseURL.substring(0, baseURL.length - 1).replace(/\//g, '');
+    if ((host === window.location.host) && (window.location.protocol !== 'https:')) {
+        window.location.protocol = 'https:';
+    }
+</script>
+
+
+
+
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/default.min.css">
+
+
+
+
+
+<link rel="stylesheet" href="https://tcolgate.github.io/css/reset.css">
+<link rel="stylesheet" href="https://tcolgate.github.io/css/pygments.css">
+<link rel="stylesheet" href="https://tcolgate.github.io/css/main.css">
+
+
+
+
+
+
+<link rel="shortcut icon"
+
+    href="https://tcolgate.github.io/img/leaf.ico"
+
+>
+
+
+
+</head>
+
+
+<body lang="en">
+
+<section class="header"> 
+    <div class="container">
+        <div class="content">
+            <a href="https://tcolgate.github.io/"><div class="name">Tristan Colgate-McFarlane</div></a>
+            <nav>
+                <ul>
+                    <a href="https://tcolgate.github.io/blog/"><li>Blog</li></a>
+                    <a href="https://tcolgate.github.io/about/"><li>About</li></a>
+                    <a href="https://tcolgate.github.io/code/"><li>Code</li></a>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="icons">
+    <div class="container">
+        <div class="content">
+
+        
+            <a href="//github.com/tcolgate" target="_blank">
+                <i class="icon ion-social-github"></i>
+            </a>
+        
+        
+        
+
+        
+            <a href="//linkedin.com/in/tristan-colgate-762b052" target="_blank">
+                <i class="icon ion-social-linkedin"></i>
+            </a>
+        
+
+        
+
+        
+
+        
+        </div>
+    </div>
+</section>
+
+
+<section class="main post non-narrow zero-top-spacing">
+    <div class="container">
+        <div class="content">
+            <div class="front-matter">
+                <div class="title-container">
+                    <div class="page-heading">
+
+    Kubernetes Up &amp; Integrated — Secrets &amp; Configuration (Qubit Eng Blog)
+
+</div>
+
+                    <div class="initials"><a href="https://tcolgate.github.io/">tcm</a></div>
+                </div>
+                <div class="meta">
+                    <div class="date" title="Wed Nov 22 2017 00:00:00 UTC">Nov 22, 2017</div>
+                    <div class="reading-time"><div class="middot"></div>21 minutes read</div>
+                </div>
+            </div>
+            <div class="markdown">
+                <p><em>Note:</em> This was originally posted on the <a href="https://medium.com/qubit-engineering/kubernetes-up-integrated-secrets-configuration-5a15b9f5a6c6">Qubit Engineering Blog</a>, and CopyRight is, at the time of writing, owned by
+<a href="https://www.coveo.com/en">Coveo</a>. It was written, and illustrated, by me, but
+would have been unreadable but for input and editing by my fantastic teammates.</p>
+<p>Note: Much of the information discussed here is considerably out of date, whilst
+the broad approaches discussed could still be applied, most of the specific config
+and APIs have changed. It is here purely for my personal archive.</p>
+<p>This is the second in a four part [1]series on how we at Qubit built our
+production ready Kubernetes (k8s) environments. For those of us with
+pre-existing configuration management workflows, moving to k8s can present
+some challenges. We will briefly describe Qubit’s previous configuration
+management process, where it caused problems and what we wanted to
+preserve. After this we will present a detailed overview of the workflow
+we have built. This will be a long post, you have been warned!</p>
+<p>The tools we will discuss here are not open-source at this time. We hope
+to release something in the near future. The workflow is also not perfect.
+We will discuss where the weaknesses lie and how things may change.</p>
+<p>As with the previous article we will assume a reasonable working knowledge
+of Kubernetes. We will also be discussing some issues involving HashCorp’s
+<a href="https://www.vaultproject.io/">Vault</a>. We’ll discuss relevant Vault topics briefly but will not attempt
+to give an exhaustive treatment.</p>
+<h2 id="the-ghost-of-config-past">The Ghost of Config Past</h2>
+<p>Qubit’s previous configuration management process was built around
+<a href="https://puppet.com/">Puppet</a> and <a href="https://github.com/voxpupuli/hiera-eyaml">hiera-eyaml</a>. Any configuration containing sensitive
+material, such as passwords, authentication tokens and private keys, are
+stored in a central Puppet Git repository. The repository contains a
+public key that can encrypt data which can than be decrypted by the Puppet
+master server. Nodes within the cluster infrastructure retrieve
+configuration from the Puppet master, the master decrypts any encrypted
+data, passing fully rendered configuration to the cluster node. The
+container orchestration infrastructure on each node (<a href="http://mesos.apache.org/">Apache Mesos</a>) can
+then mount the rendered content into containers as they start.</p>
+<p>Many of the workloads running within the clusters are Node.js tasks using
+the <a href="https://github.com/lorenwest/node-config">node-config</a> package for configuration. We leverage the merging
+behaviour of both hiera-eyaml and node-config. Applications can ship
+per-environment settings in e.g. staging.yaml, hiera then merges an
+unencryped per-application YAML section with the decrypted per-application
+settings, and renders this into a local.yaml file. The practical result is
+that developers can place a section of their configuration, as YAML, into
+our Puppet repository, and have that presented to their application in a
+secure fashion.</p>
+<p>The developer workflow is as follows:</p>
+<ul>
+<li>Create or update an application’s configuration requirements.</li>
+<li>Create a new section in the Puppet repository with the encrypted version
+of a secret.</li>
+<li>Raise a pull-request to merge the new configuration section.</li>
+<li>Wait for Puppet to deploy the secrets to the cluster nodes. In our case:
+one run per-hour per-node.</li>
+<li>Once merged, deploy the new version of the application.</li>
+</ul>
+<p>This process meets many of our security needs:</p>
+<ul>
+<li>Secrets are not checked-in to any source repository in plain text.</li>
+<li>Plain text secrets are at rest in a relatively minimal set of locations
+(on the root partition of each cluster node).</li>
+<li>Plain text secrets are only visible to the intended recipient
+application.</li>
+</ul>
+<p>Many of you will have similar workflows. With hindsight and experience it
+is easy to be critical of this workflow. We’ll discuss the practical
+problems we experienced, but it is important to state that for many
+organisations this process is perfectly adequate. Many of the issues we’ll
+discuss below could be fixed by other means, without moving away from
+Puppet. We could certainly have stuck to this workflow with our move to
+k8s, for many people that will certainly be the right thing to do. That
+being said, here is a brief list of issues we faced regularly:</p>
+<ul>
+<li>Pull-request review by the Infrastructure team becomes a bottleneck for
+developers.</li>
+<li>Unnoticed errors in configuration easily broke Puppet runs for all
+applications, and all related infrastructure.</li>
+<li>Feedback on when Puppet has finally deployed configuration to the
+cluster is very poor and of limited visibility. Either Puppet runs were
+forced, which required Infrastructure team action, or the developer had
+to wait for “about an hour” before deploying.</li>
+<li>Deploying an application before Puppet had deployed configuration had
+unexpected results. Docker creates a local directory if asked to mount a
+file into a container if no such file exists on disk. This results in</li>
+<li>Puppet runs failing when a directory exists where a file should have
+been. This required Infrastructure team involvement to fix. The
+application would also deploy, but fail when attempting to read a
+directory.</li>
+</ul>
+<p>As Qubit’s development teams scaled up, occasional irritating misbehaviour
+turned into serious problems.</p>
+<h2 id="what-does-good-look-like">What Does “Good” Look Like?</h2>
+<p>In the previous section we have discussed some of the practical issues we
+faced with our Puppet based configuration process. It is worth taking a
+step back and trying to understand how these issues impacted the Big
+Picture.</p>
+<ul>
+<li>Developers had to be aware of the behaviour of a tool they would never
+actually run or use directly (Puppet).</li>
+<li>Developers had to work with an extra code repository.</li>
+<li>The Infrastructure team had to be involved with many new deploys, or
+emergency deploys, and all secret changes (or any changes to any of the
+configuration managed by Puppet).</li>
+</ul>
+<p>As mentioned in the previous article in this series, we aim to have
+development teams have complete ownership of everything needed by their
+application from one single code repository. Ideally this should include:</p>
+<ul>
+<li>Code, tests and CI configuration.</li>
+<li>Configuration needed for deploying the application.</li>
+<li>Run-time configuration.</li>
+<li>Metrics and alerting configuration.</li>
+</ul>
+<p>It is worth mentioning at this point that Qubit do not (at this time) have
+what other organisations might call an Operations team (variously known as
+‘SRE team’, or the outright oxymoron of ‘DevOps team’). Development teams
+are responsible for the day-to-day running of their applications. Qubit’s
+Infrastructure team is focused on building, managing and maintaining the
+underlying infrastructure and providing the tools for the developers to
+use that infrastructure. This allows the number of services and associated
+development teams to scale independently of the Infrastructure team.</p>
+<h2 id="a-brave-new-world">A Brave New World</h2>
+<p>Kubernetes presented a new challenge. One of our goals was to make
+deployments agnostic of the underlying cloud provider. We could have built
+k8s infrastructure via Puppet in both GCE and AWS, we had already done
+this for Mesos. Our existing Puppet infrastructure would have needed work
+to support GCE. The presence of GKE made this approach less attractive.
+<a href="https://github.com/kubernetes/kops">Kops</a> had also provided a straightforward approach to delivering a solid
+k8s infrastructure on AWS without this effort. The idea of no longer
+requiring Puppet to build the underlying cluster nodes was too attractive
+to pass up, especially when combined with the issues presented above.</p>
+<p>The subject of presenting secrets to containers is generally known as
+Secret Injection. Fortunately for us, people had already outlined
+approaches to Secret Injection within k8s. Whilst none of the existing
+tools completely covered our use case, there was enough prior-art to give
+us a head start.</p>
+<p>We had settled on HashiCorp’s Vault for storage of secrets. Vault is an
+incredibly powerful tool. While there is a wealth of introductory
+documentation on Vault, there is considerably less by way of detailed
+discussion of production ready deployment. All requests to retrieve
+secrets from Vault require a Vault Token with suitable assigned policies
+for reading a given secret. Getting an initial token for a service to talk
+to Vault can seem like a ‘chicken and egg’ situation. Various mechanisms
+can be used to get an initial Vault token (see Authentication Backends),
+but the most relevant to our use case all require some other process to
+already have a Vault Token. This ‘Token Bootstrapping’ represents a real
+challenge to production Vault deployments.</p>
+<p>Once you have logged in to Vault, you still have to access and use your
+secrets. We considered requiring developers to talk to Vault directly.
+This would have been the easiest option for the Infrastructure team, and
+arguably given the best end result in terms of Vault integration. In
+reality the code changes required to some 200 micro-services ruled this
+out. Vault is not an easy tool to use, especially when compared with YAML
+configuration files loaded via node-conf. Simply retrieving secrets is not
+the only issue, for some secrets the Vault Token must be periodically
+refreshed.</p>
+<p>Our final goals were:</p>
+<ul>
+<li>Minimal / No code alteration for existing applications.</li>
+<li>Minimal configuration changes.</li>
+<li>Configuration from the application’s source repository.</li>
+<li>Configuration available immediately upon deployment.</li>
+<li>Minimal exposure of plain text secret content.</li>
+<li>Allow leveraging advanced Vault concepts (such as managed PKI, and
+managed lifetime secrets for AWS).</li>
+</ul>
+<p>Our eventual approach was inspired by three existing projects:</p>
+<ul>
+<li>[https://github.com/kelseyhightower/vault-controller]</li>
+<li>[https://github.com/Boostport/kubernetes-vault]</li>
+<li>[https://github.com/kelseyhightower/confd]</li>
+</ul>
+<p>Since you have been so patient, and we still have a long road ahead, we’ll
+break up proceeding with the basic block diagram of what we eventually
+produced.</p>
+<figure><img src="https://tcolgate.github.io/img/k8s-ui-2/k8s-ui-2.fig1.png"/>
+</figure>
+
+<h2 id="token-bootstrap">Token Bootstrap</h2>
+<p>We elected to use Vault’s <a href="https://www.vaultproject.io/docs/auth/approle.html">AppRole</a> feature. With AppRole a
+micro-service is assigned to a given AppRole in Vault. A micro-service
+instance must log in to the Vault AppRole to obtain a Vault Token before
+it can begin reading secrets. In order to log in to the AppRole, an
+instance of a micro-service requires two pieces of information:</p>
+<ul>
+<li>AppRole RoleID, by default this is a UUID. There is only one RoleID for
+a given AppRole.</li>
+<li>AppRole SecretID, a UUID that is retrieved from Vault by another process
+which is allowed to issue SecretIDs for a given AppRole. In our
+configuration this SecretID is unique for each new running instance, may
+only be used to log in to Vault once, and is only valid for a limited
+time after being issued.</li>
+</ul>
+<p>Getting two pieces of information to our embryonic micro-service instance
+might seem harder than the problem we originally had of getting a single
+Vault Token into our container. We seem to have made our situation worse.
+There is a very good reason for taking this approach. These two bits of
+information can be delivered by different means, and neither of the
+processes responsible for either part of that delivery ever have enough
+information to actually log into the AppRole and retrieve the applications
+secrets. Our embryonic micro-service instance can combine these two IDs
+and use them to log into Vault, the resulting token grants it the power to
+read secrets. Since the SecretID may only be used once we can also detect
+potential misuse. If a service is unable to log in to Vault with a given
+RoleID and SecretID then only one of two things could have happened. It
+either took them too long, or the SecretID has already been used. It is
+possible, via Vault’s Audit infrastructure, to spot and alert on the
+latter case.</p>
+<p>This is excellent, but we still have a Token Bootstrapping problem. In
+order to get the RoleID and SecretIDs for an AppRole, whatever is
+requesting them must, in turn, have a valid Vault token. In our case, the
+RoleID will be retrieved by the process that is deploying the application
+(usually a CI tool or developer laptop), and the SecretID will be
+retrieved by an in-cluster Vault Controller. We could pick any other Vault
+<a href="https://www.vaultproject.io/docs/auth/index.html">authentication method</a> here. The RoleID could be retrieved by a user
+authenticated via the GitHub authentication mechanism, whilst the SecretID
+process could be authenticated by an EC2 or GCP machine credential.</p>
+<p>There is a further complication here that ruled out these simple
+authentication methods. Vault Policies are not very dynamic things at
+present. We want each AppRole to be limited to reading secret for just its
+associated micro-service. Out of the box Vault would require the developer
+to be able to create a policy for their application, and create the
+associated AppRole. This gives the developer carte-blanche as to the
+content of that policy. Whilst we do trust our developers, this would
+require them to understand Vault policies and would be very prone to
+error.</p>
+<p>Since we already have a central authentication mechanism based on JWTs
+(discussed in our <a href="https://medium.com/qubit-engineering/kubernetes-up-integrated-authentication-5d2c908c2810">previous article</a>, we elected to leverage it. We
+have built a small Secret API that sits in front of Vault and is
+responsible for managing AppRoles and policies. The deployment process can
+request the RoleID for a given application from the Secret API. After
+verifying the request the Secret API creates a set of policies for the
+application, along with an AppRole. Similarly, access to SecretIDs is
+controlled via this service. Pushing these parts of the Vault flow through
+an API also allows us to use our existing authorisation mechanism based on
+our internal Google Groups.</p>
+<h2 id="the-end-result">The End Result</h2>
+<p>Here is a brief overview of each of the components in the diagram above:</p>
+<ul>
+<li>Vault: Stores secrets at rest and enforces access policies.</li>
+<li>SecretAPI: Manages Vault AppRoles and policies, and is responsible for
+authorising access to Vault AppRole details. It is also used for setting
+secrets and maintaining a version history of secrets.</li>
+<li>Docker (Init): A Docker Registry containing a set of Init Containers for
+applications.</li>
+<li>Docker (Apps): A Docker Registry containing the main application
+containers. This is currently the same registry as the Init registry,
+this will be discussed further in the Future Work section.</li>
+<li>Secret Controller: Runs within each Kubernetes cluster. This is
+responsible for retrieving SecretIDs for new Pods.</li>
+<li>Secret Init Container: This is a container added to each Pod needing to
+receive configuration.</li>
+<li>Secret Refresh Cotainer: Optional container that can be used to manage
+Vault leases.</li>
+<li>Config Volume: A tmpfs in-memory volume shared between the Init
+Container and the main Application Container. This stores the final
+configuration for the application.</li>
+<li>Lease Volume: A tmpfs in-memory volume shared between the Init Container
+and the Refresh Container. This stores any Vault Leases that will need
+to be refreshed.</li>
+</ul>
+<p>The final system is probably best described via a worked example. We will
+describe the key components in the process as they become relevant.</p>
+<p>We will start with an application. We have a source code repository with
+the following content:</p>
+<ul>
+<li><code>/Dockerfile</code>            - to build out final application container</li>
+<li><code>/deployer.yml</code>          - our deployment configuration file</li>
+<li><code>/config/staging.yml</code>    - non-secret node-config file for staging</li>
+<li><code>/config/production.yml</code> - non-secret node-config file for production</li>
+<li><code>/config/local.yml.tmpl</code> - Go template that will become local.yml</li>
+<li><code>/...</code>                   - the rest of our application code</li>
+</ul>
+<p>Developers, if so authorised, can set specific secrets within Vault using
+a command line utility that talks to the Secret API.</p>
+<p>When the application is deployed:</p>
+<ul>
+<li>The main application’s Docker container is built and pushed to the
+application Docker repository.</li>
+<li>The deployment tool contacts the Secret API to retrieve the RoleID for
+this application, specifying the destination cluster’s details.</li>
+<li>If the user running the deployment is suitably authorised the Secret API
+server ensures the necessary Vault AppRole and policies exists and returns
+the RoleID and AppRole name to the user.</li>
+</ul>
+<h2 id="the-vault-approles-and-policies">The Vault AppRoles and Policies</h2>
+<p>When an application is first deployed we create four items in Vault. First
+we create the AppRole itself. This controls the set of permissions that
+will be given to the final Pod that retrieves the information. An example
+might be as follows:</p>
+<pre tabindex="0"><code>   # auth/approle/role/aws.stg.myapp
+   period                  300
+   policies                [default secret-api/read-aws.stg.myapp]
+   secret_id_num_uses      1
+   secret_id_ttl           300
+   token_max_ttl           300
+   token_num_uses          0
+   token_ttl               300
+</code></pre><p>This is an AppRole for instances of myapp running in the stg (staging)
+cluster within aws (Amazon Web Services). The tokens issued to the final
+application will be refreshable tokens and will be given the
+secret-api/read-aws.stg.myapppolicy. We also create that policy:</p>
+<pre tabindex="0"><code>   policy secret-api/read-aws.stg.myapp:
+   path &#34;secret/myapp/*&#34; { capabilities = [&#34;read&#34;, &#34;list&#34;] }
+   path &#34;secret/global/*&#34; { capabilities = [&#34;read&#34;, &#34;list&#34;] }
+   path &#34;secret/project/aws/*&#34; { capabilities = [&#34;read&#34;, &#34;list&#34;] }
+   path &#34;secret/cluster/aws/stg/*&#34; { capabilities = [&#34;read&#34;, &#34;list&#34;] }
+   path &#34;pki/cluster/stg/*&#34; { capabilities = [&#34;read&#34;, &#34;list&#34;] }
+   path &#34;pki/cluster/aws/stg/issue&#34; { capabilities = [&#34;create&#34;, &#34;update&#34;] }
+   path &#34;aws/creds/aws.stg.myapp&#34; { capabilities = [&#34;read&#34;, &#34;list&#34;] }
+</code></pre><p>This policy allows the application to:</p>
+<ul>
+<li>read and list various static secrets, some specific to it, others shared
+among applications</li>
+<li>read and create certificates in a cluster wide PKI</li>
+<li>create AWS credentials specific to this applications role. These
+credentials are limited to the lifetime of the application.</li>
+</ul>
+<p>We also create a second policy. This will be used by the Secret Contoller
+later on in the process.</p>
+<pre tabindex="0"><code>   policy secret-api/getsecretid-aws.stg.myapp:
+   path &#34;auth/approle/role/aws.stg.myapp/secret-id&#34; {
+
+                  capabilities = [&#34;create&#34;, &#34;update&#34;]
+
+          }
+</code></pre><p>We also create a Vault Token Role (this is separate from an AppRole),
+associated with this policy:</p>
+<pre tabindex="0"><code>   # auth/token/roles/getsecretid-aws.stg.myapp
+
+   allowed_policies        [secret-api/getsecretid-aws.stg.myapp]
+   disallowed_policies     [root]
+   explicit_max_ttl        0
+   name                    getsecretid-aws.stg.myapp
+   orphan                  false
+   path_suffix      
+   period                  0
+   renewable               true
+</code></pre><p>We will explain this policy briefly when we get to the Secret Contoller.</p>
+<p>We continue with our deployment:</p>
+<ol start="5">
+<li>The deployment tool takes the AppRole information returned in the
+previous step and builds an InitContainer that will be added to the Pod.</li>
+</ol>
+<h2 id="the-init-container">The Init Container</h2>
+<p>Kubernetes allows Pods to have Init Containers. These containers are run
+before other in the Pod. They must run, and finally exit cleanly before
+the Pod start-up is allowed to continue.</p>
+<p>Our Init Container includes 3 things:</p>
+<ul>
+<li>A binary capable of logging in to a Vault AppRole, and rendering Go
+Template files that include secret lookups into Vault.</li>
+<li>The AppRole RoleID information. This is the first half of our AppRole
+login details.</li>
+<li>The set of configuration files from the /config directory of the
+original source code.</li>
+</ul>
+<p>Once the Init Container is pushed to the Docker registry, the deployment
+continues:</p>
+<ol start="6">
+<li>
+<p>The deployment tool creates a set of k8s Deployments in the cluster.
+The deployments include the Vault AppRole name as an annotation on any Pod
+specification that wishes to engage in the Configuration process.</p>
+</li>
+<li>
+<p>Kubernetes starts a Pod.</p>
+</li>
+<li>
+<p>The Init Container starts. After reading in the RoleID information it
+begins listening on a known port.</p>
+</li>
+<li>
+<p>The Secret Controller watches for new Pods. Upon finding one with
+suitable annotations, and with a running InitContainer listening on the
+known port, it begins its work.</p>
+</li>
+</ol>
+<h2 id="the-secret-controller">The Secret Controller</h2>
+<p>The secret controller runs in each cluster. It has a Google Cloud Service
+Account specific to that cluster which permits it to retrieve SecretIDs on
+behalf of applications started in that cluster.</p>
+<p>When it finds a new Pod wanting configuration, it contacts the SecretAPI
+and asks for a Vault Token for reading SecretIDs for the given
+application. Once the SecretAPI approves this request, a new Vault token
+with the secret-api/getsecretid-aws.stg.myapp policy is issued (via the
+previously mentioned Token Role). The Secret Controller then contacts
+Vault directly and retrieves a new SecretID for the required AppRole. This
+is then passed to the waiting Init Container via a HTTP POST. Ideally this
+would be a HTTPS POST, however bootstrapping a certificate here is tricky.
+Since the SecretID is of no use without the RoleID, and we can detect
+abuse of leaked SecretIDs, we do not consider this to be a major issue.
+Potentially the forthcoming <a href="https://istio.io/">Istio</a> project could help here, or the
+Kubernetes Certificate API could be used.</p>
+<p>The Secret Controller’s work is now done, and the deployment of the Pod
+continues inside the Init Container.</p>
+<ol start="10">
+<li>
+<p>The Init Container now has the AppRole RoleID that was baked into the
+container image and the SecretID that has been given to it by the
+Controller. It proceeds to log in to the Vault AppRole. All things being
+well, it will receive a Vault Token with the
+secret-api/read-aws.stg.myapp policy mentioned above.</p>
+</li>
+<li>
+<p>The Init Container now copies any files in the configuration data
+baked into its image into the shared configuration volume. During this
+process any file with a .tmpl extension is assumed to be a
+<a href="https://golang.org/pkg/text/template/">Go Template</a>.  . The template
+handling code contains a rich set of functions
+(including the <a href="https://github.com/Masterminds/sprig">Sprig</a>). Several functions are included for interacting
+with Vault. The following is an illustrative subset:</p>
+</li>
+</ol>
+<ul>
+<li><code>lookup:</code> This looks up a given secret name in the application specific
+area of the Vault tree for this application.</li>
+<li><code>awsCredsEnvVars</code>: Retrieves a set of AWS credentials for this process and
+renders them as sh shell environment variables.</li>
+<li><code>dbUsername</code>,<code>dbPassword</code>: These can be used to request database credentials
+from Vault.</li>
+<li><code>tlsKey</code>, <code>tlsCert</code>, <code>tlsCA</code>: These generate a TLS key and certificate that
+can be used for mutual authentication within the cluster. The
+certificates are long lived and a largely intended for providing TLS to
+any loadbalancer ingress.</li>
+<li><code>rawRead</code>, <code>rawWrite</code>: These permit arbitrary reads/writes to Vault paths.
+Since the policy limits the application to specific paths, allowing
+arbitrary read/write is fine.</li>
+</ul>
+<p>After template rendering the resulting content is written to the shared
+configuration directory (with the .tmpl extension stripped). The end
+result is a set of complete configuration files with the relevant secrets
+for this application, stored on a temporary filesystem readable by the
+main application container.</p>
+<p>The <code>db*</code> and <code>aws*</code> functions are worth a little further comment. It is
+important to note here that the credentials the application will get are
+specific to this running instance of the application and are not shared
+with other instances. When the application exits these credentials are
+revoked and destroyed. The creation of these credentials is audited by
+Vault. We can, for instance, track an action in AWS down to a specific
+running instance of an application. A practical upshot of this is that AWS
+and Database credential management is significantly simplified. We no
+longer need to roll keys. This can be trivially achieved by a rolling
+restart of the application (or a fresh deployment).</p>
+<p>The final act of our Init Container relates to these temporary
+credentials. If requested, the Init Container will additionally write the
+Token and Lease information for any per-process credentials into a second
+temporary filesystem.</p>
+<p>If all goes well, our Init Container exits cleanly and our deployment
+continues. If it does not (due to missing secrets, unavailable Vault
+server, or general network flakiness), the Init Container will eventually
+be restarted and the process will continue again from Step 8. We shall
+continue on, assuming all is well:</p>
+<ol start="12">
+<li>
+<p>At this point our main application container starts. It can read its
+configuration from the shared configuration volume, access required
+services and begin its work. In the basic case we are now done. If we are
+using credentials we are leasing from Vault, one further action is
+required.</p>
+</li>
+<li>
+<p>Our Kubernetes Pod may include a Secret Refresh Sidecar. If so, it
+will be started alongside our main application container. It will
+periodically refresh our Vault token, ensuring that our per application
+credentials are kept valid. Upon termination it will revoke the Vault
+token, thus destroying any associated credentials.</p>
+</li>
+</ol>
+<h2 id="profit">Profit!…</h2>
+<p>Our application is successfully deployed. Our secrets are in in-memory
+storage, only visible to the application we desired to have them. Each
+component on the way has had minimal access to secret related material. By
+generating temporary per-process credentials we have also achieved
+something that would be considerably harder to achieve with our original
+Puppet configuration.</p>
+<h2 id="loss">Loss?</h2>
+<p>It would be dishonest not to point out some of the weak points in this
+process:</p>
+<ul>
+<li>The Secret API has considerable access to Vault. Vault has no support
+for subclassing or templating of policies at this time, so I consider
+this largely unavoidable unless you are willing to have an Operations
+team that can take responsibility for create the required Vault
+elements.</li>
+<li>None of this plays particularly well with Kubernetes Secrets or
+ConfigMaps. This is less of a problem for internal services, where we
+generate the k8s objects ourselves, but becomes more awkward when
+leveraging 3rd party helm charts.</li>
+<li>Config from environment variables is still possible but cannot be
+configured on the container. A shell must be present inside the
+container, and suitable shell content rendered to populate the
+environment. Since this limits visibility of the environment variables
+from outside the Pod, this can be seen as a reasonable trade-off.</li>
+<li>The Refresh Sidecar needs further work. Kubernetes will not destroy a
+Pod if an individual Sidecar crashes. Since the crashing sidecar may
+have revoked the Vault token, we really need to destroy the entire Pod
+and start again. This could be done from the Secret Controller. Further
+experience needs to be gathered.</li>
+<li>Kubernetes secrets are still very much a work in progress. Vault
+integration is on the horizon and it is quite possible that much of this
+process will be rendered irrelevant in the next 6 months.
+Clearly this process is non-trivial. In reality the volume of code
+amounts to no more than about 1000 lines spread over 4 processes (the
+Secret API, Init Container, Refresh Container and Controller). We
+believe that the end-user experience is no more complicated than the
+original tooling (with the possible exception of the Go Templates). Time
+will tell.</li>
+</ul>
+<h2 id="future-work">Future Work</h2>
+<p>We are fairly comfortable with the flow as is. It has proved very reliable
+and adaptable. The delay on container start imposed by the Init Container
+is quite minimal, usually dwarfed by the time to download the main
+container. A typical Init Container run time is in the order of 1 or 2
+seconds.</p>
+<p>One area for potential enhancement is the build of the Init Container. The
+deployer in the above process builds the Init Container and pushes it to a
+common Docker Registry. The content of the container is just the
+configuration files and templates that they already have access to.
+However, they do not strictly need the RoleID. One option we are
+considering is the have the SecretAPI actually build the Init Container
+and pass back an image name that can then be included in the Pod. If the
+Docker Init Registry is only readable by the target k8s cluster, and
+writable by the Secret API, then the RoleID would never be readable by the
+process deploying the Pod. Whilst the RoleID does not present a major
+attack vector, minimising access to it seems like a reasonable option.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>If you have gotten this far, then we thank you for taking the time to read
+this and hope it has been informative. Kubernetes and Vault are excellent
+tools and can work together well, but proper integration is a non-trivial
+task.</p>
+<p>We hope to release the bulk of the tooling used by the process in the
+following months. Similar, simpler, tools already exist and may be
+suitable for simpler requirements. Much of the design has been motivated
+by our multi-cluster configuration and should probably be avoided if you
+have that option. Ultimately we hope that this post, and the others to
+follow will be useful in discussing some of the more difficult aspects of
+production Kubernetes use, and help feed into more general solution that
+can benefit the whole community.</p>
+
+                <br>
+                <p><a href="https://tcolgate.github.io/blog/">Back to posts</a></p>
+            </div>
+            <br>
+            <div class="disqus">
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+    var pageTracker = _gat._getTracker("XYZ");
+    pageTracker._trackPageview();
+} catch(err) {}
+</script>
+
+
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js"></script>
+
+  <script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+  </script>
+
+
+
+</body>
+</html>
+

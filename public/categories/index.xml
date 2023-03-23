@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on Magic Sand</title>
+    <link>https://tcolgate.github.io/categories/</link>
+    <description>Recent content in Categories on Magic Sand</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 04 Mar 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://tcolgate.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>alerting</title>
+      <link>https://tcolgate.github.io/categories/alerting/</link>
+      <pubDate>Sun, 04 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/categories/alerting/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Kubernetes</title>
+      <link>https://tcolgate.github.io/categories/kubernetes/</link>
+      <pubDate>Sun, 04 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/categories/kubernetes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>monitoring</title>
+      <link>https://tcolgate.github.io/categories/monitoring/</link>
+      <pubDate>Sun, 04 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/categories/monitoring/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Prometheus</title>
+      <link>https://tcolgate.github.io/categories/prometheus/</link>
+      <pubDate>Sun, 04 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/categories/prometheus/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>apdex</title>
+      <link>https://tcolgate.github.io/categories/apdex/</link>
+      <pubDate>Sat, 03 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/categories/apdex/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>timeseries</title>
+      <link>https://tcolgate.github.io/categories/timeseries/</link>
+      <pubDate>Sat, 03 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/categories/timeseries/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Vault</title>
+      <link>https://tcolgate.github.io/categories/vault/</link>
+      <pubDate>Wed, 22 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/categories/vault/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>cacti</title>
+      <link>https://tcolgate.github.io/categories/cacti/</link>
+      <pubDate>Mon, 23 Jan 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/categories/cacti/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>fun</title>
+      <link>https://tcolgate.github.io/categories/fun/</link>
+      <pubDate>Mon, 23 Jan 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/categories/fun/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

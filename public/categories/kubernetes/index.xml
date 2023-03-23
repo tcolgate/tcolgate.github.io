@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kubernetes on Magic Sand</title>
+    <link>https://tcolgate.github.io/categories/kubernetes/</link>
+    <description>Recent content in Kubernetes on Magic Sand</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-GB</language>
+    <lastBuildDate>Sun, 04 Mar 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://tcolgate.github.io/categories/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Prometheus: K8s Cronjob alerts (Qubit Eng Blog)</title>
+      <link>https://tcolgate.github.io/blog/prometheus-k8s-cronjob-alerts-qubit-eng-blog/</link>
+      <pubDate>Sun, 04 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/blog/prometheus-k8s-cronjob-alerts-qubit-eng-blog/</guid>
+      <description>Note: This was originally posted on the Qubit Engineering Blog Coveo. It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
+Kubernetes Jobs and Cronjobs are powerful tools that present some interesting challenges to monitoring. We’ll demonstrate rules using kube-state-metrics and Prometheus to monitor and alert on failed jobs. We’ll discuss how the rules were formulated, and how to leverage Prometheus label matching techniques for advanced alerting.</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes Up &amp; Integrated — Secrets &amp; Configuration (Qubit Eng Blog)</title>
+      <link>https://tcolgate.github.io/blog/kubernetes-up-integrated-secrets-configuration-qubit-eng-blog/</link>
+      <pubDate>Wed, 22 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/blog/kubernetes-up-integrated-secrets-configuration-qubit-eng-blog/</guid>
+      <description>Note: This was originally posted on the Qubit Engineering Blog, and CopyRight is, at the time of writing, owned by Coveo. It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
+Note: Much of the information discussed here is considerably out of date, whilst the broad approaches discussed could still be applied, most of the specific config and APIs have changed.</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes Up &amp; Integrated — Authentication (Qubit Eng Blog)</title>
+      <link>https://tcolgate.github.io/blog/kubernetes-up-integrated-authentication-qubit-eng-blog/</link>
+      <pubDate>Fri, 27 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/blog/kubernetes-up-integrated-authentication-qubit-eng-blog/</guid>
+      <description>Note: This was originally posted on the Qubit Engineering Blog, and CopyRight is, at the time of writing, owned by Coveo. It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
+Note: Much of the information discussed here is considerably out of date, whilst the broad approaches discussed could still be applied, most of the specific config and APIs have changed.</description>
+    </item>
+    
+  </channel>
+</rss>

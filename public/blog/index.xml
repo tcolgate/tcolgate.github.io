@@ -1,13 +1,63 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Blog-rss on Magic Sand</title>
-    <link>https://tcolgate.github.io/blog/index.xml</link>
-    <description>Recent content in Blog-rss on Magic Sand</description>
+    <title>Blog on Magic Sand</title>
+    <link>https://tcolgate.github.io/blog/</link>
+    <description>Recent content in Blog on Magic Sand</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Tue, 20 Sep 2016 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://tcolgate.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 04 Mar 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://tcolgate.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Prometheus: K8s Cronjob alerts (Qubit Eng Blog)</title>
+      <link>https://tcolgate.github.io/blog/prometheus-k8s-cronjob-alerts-qubit-eng-blog/</link>
+      <pubDate>Sun, 04 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/blog/prometheus-k8s-cronjob-alerts-qubit-eng-blog/</guid>
+      <description>Note: This was originally posted on the Qubit Engineering Blog Coveo. It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
+Kubernetes Jobs and Cronjobs are powerful tools that present some interesting challenges to monitoring. We’ll demonstrate rules using kube-state-metrics and Prometheus to monitor and alert on failed jobs. We’ll discuss how the rules were formulated, and how to leverage Prometheus label matching techniques for advanced alerting.</description>
+    </item>
+    
+    <item>
+      <title>Prometheus: Apdex alerting (Qubit Eng Blog)</title>
+      <link>https://tcolgate.github.io/blog/prometheus-apdex-alerting-qubit-eng-blog/</link>
+      <pubDate>Sat, 03 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/blog/prometheus-apdex-alerting-qubit-eng-blog/</guid>
+      <description>Note: This was originally posted on the Qubit Engineering Blog), and CopyRight is, at the time of writing, owned by Coveo. It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
+I’m going to take a break from our series on Production Kubernetes to write up a couple of smaller articles on Prometheus. This article will give an overview of Apdex, and go on to describe a practical approach to implementing Apdex alerts in Prometheus.</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes Up &amp; Integrated — Secrets &amp; Configuration (Qubit Eng Blog)</title>
+      <link>https://tcolgate.github.io/blog/kubernetes-up-integrated-secrets-configuration-qubit-eng-blog/</link>
+      <pubDate>Wed, 22 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/blog/kubernetes-up-integrated-secrets-configuration-qubit-eng-blog/</guid>
+      <description>Note: This was originally posted on the Qubit Engineering Blog, and CopyRight is, at the time of writing, owned by Coveo. It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
+Note: Much of the information discussed here is considerably out of date, whilst the broad approaches discussed could still be applied, most of the specific config and APIs have changed.</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes Up &amp; Integrated — Authentication (Qubit Eng Blog)</title>
+      <link>https://tcolgate.github.io/blog/kubernetes-up-integrated-authentication-qubit-eng-blog/</link>
+      <pubDate>Fri, 27 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/blog/kubernetes-up-integrated-authentication-qubit-eng-blog/</guid>
+      <description>Note: This was originally posted on the Qubit Engineering Blog, and CopyRight is, at the time of writing, owned by Coveo. It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
+Note: Much of the information discussed here is considerably out of date, whilst the broad approaches discussed could still be applied, most of the specific config and APIs have changed.</description>
+    </item>
+    
+    <item>
+      <title>Using Seasonality in Prometheus alerting (Qubit Eng Blog)</title>
+      <link>https://tcolgate.github.io/blog/using-seasonality-in-prometheus-alerting-qubit-eng-blog/</link>
+      <pubDate>Mon, 23 Jan 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/blog/using-seasonality-in-prometheus-alerting-qubit-eng-blog/</guid>
+      <description>Note: This was originally posted on the Qubit Engineering Blog, and CopyRight is, at the time of writing, owned by Cove. It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
+In this post, we will show a worked example of building a Prometheus alert for a typical user facing service.
+Introduction At Qubit we have recently completely
+a migration from our legacy Shinken and Graphite based monitoring to a system built around Prometheus, a modern time series database.</description>
+    </item>
     
     <item>
       <title>Time Series Search in Prometheus</title>
@@ -15,292 +65,8 @@
       <pubDate>Tue, 20 Sep 2016 00:00:00 +0000</pubDate>
       
       <guid>https://tcolgate.github.io/blog/time-series-search-in-prometheus/</guid>
-      <description>
-
-&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; This post describes an extension to &lt;a href=&#34;https://Prometheus.io&#34;&gt;Prometheus&lt;/a&gt; that is unlikely to ever make it upstream,
-and definitely not in its current form.&lt;/p&gt;
-
-&lt;h2 id=&#34;time-series-indexing&#34;&gt;Time Series Indexing&lt;/h2&gt;
-
-&lt;p&gt;When we talk about an index for a time-series database, we are usually
-talking about an index of the metadata. In the case of Prometheus, such an
-index would help us locate all the series with certain labels, allowing us to
-quickly query, for example, all the &lt;em&gt;http_requests_total&lt;/em&gt; timeseries that
-match a given &lt;em&gt;handler&lt;/em&gt; or response &lt;em&gt;code&lt;/em&gt;. Whilst that is a worthy topic to
-explore, this article is not about that.&lt;/p&gt;
-
-&lt;p&gt;Most timeseries databases we deal with will not attempt to index the actual
-data. It is rare to want to search based on values. This is especially true
-when data is stored using floating point, or is derived from fast changing
-counters. Searching for an exact float64 value is of limited use.  Even
-searching specific numbers within a known range is not that useful. Traditional
-indexing methods are just not of much interest for the time series data itself.&lt;/p&gt;
-
-&lt;h2 id=&#34;finding-signals-in-the-noise&#34;&gt;Finding signals in the noise&lt;/h2&gt;
-
-&lt;p&gt;Whilst it&amp;rsquo;s rare to want to find a specific value in our data, it&amp;rsquo;s not
-uncommon to want to find correlations between time-series. &amp;ldquo;Who is doing
-that?!&amp;ldquo;, is a not uncommon refrain from the desperate systems or network
-administrator. Correlation does not imply causation, but it can get the witch hunt
-off to a good start.&lt;/p&gt;
-
-&lt;p&gt;I often found myself in this situation when working as a network administrator
-on a medium sized office and data-center network in a previous role. The total
-estate consisted of several dozen high density switches, totalling a few thousand
-ports. It was not uncommon for a single user to monopolise the, relatively small,
-central office Internet pipe. Finding which one of the many 1Gb/s ports was
-originating the 40Mb/s spike was tedious, and usually involved scrolling
-through pages of cacti graphs to locate the floor and port responsible.&lt;/p&gt;
-
-&lt;p&gt;It seemed that it should be possible to find graphs that contained features
-with a passing resemblance to the problematic spike. My manual search was
-really the search to answer the question of &amp;ldquo;Which graph has a spike on it that
-looks a bit like the one on the Internet link?&amp;ldquo;. But can we get a computer to
-do this for us?&lt;/p&gt;
-
-&lt;h2 id=&#34;feature-space-reduction&#34;&gt;Feature space reduction&lt;/h2&gt;
-
-&lt;p&gt;Unsurprisingly, many greater minds than mine had expended much effort to solve
-this problem (though, none that I know of, were hunting for rouge BitTorrent
-users).&lt;/p&gt;
-
-&lt;p&gt;The answer lies in a set of techniques called Dimensionality Reduction. The key
-is to convert our time series data from its initial state, which we&amp;rsquo;ll call
-temporal space, to something called a Feature Space. Feature Spaces represent
-features of the data, rather than the specific data samples themselves. Once
-converted, we effectively reduce the resolution of the data in the feature
-space, allowing us to compare the features, rather than the raw data. Such,
-comparisons can be much &amp;ldquo;fuzzier&amp;rdquo; than attempts to search for pattterns in raw
-data.&lt;/p&gt;
-
-&lt;p&gt;The best known example of a feature-space conversion is the Fourier Transform
-and its variants (DCTs, and wavelet transforms for example). Rather than
-represent the time series data as a series of values in the time domain, these
-tell us which frequencies are present in the data. These frequencies are the
-features.&lt;/p&gt;
-
-&lt;p&gt;The broad idea is to convert our time series data into some other form that
-more directly represents the features, then compare those features for the
-similarities we are interested in.  Once we are working in feature space we can
-apply techniques such as Euclidian Distance and Nearest Neighbour searches, to
-locate other series whose data has similar features to ours.&lt;/p&gt;
-
-&lt;p&gt;As tantalising as the frequency domain conversions are, it turns out that some
-of their properties  make them less ideal for correlation of spiky network
-traffic. In particular, a small shift of a spike of traffic in the temporal
-space (appearing very slightly earlier or later in one graph from another), can
-result in very different frequency domain data. Small square spikes generally
-don&amp;rsquo;t encode well to frequency domain. Such spikes are common in network
-monitoring data.&lt;/p&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://www.cs.ucr.edu/~eamonn/SAX.pdf&#34;&gt;SAX&lt;/a&gt; project came up with an
-alternative approach which is easy to understand, and very easy to implement.&lt;/p&gt;
-
-&lt;h2 id=&#34;piece-wise-aggregate-approximation&#34;&gt;Piece-wise Aggregate Approximation&lt;/h2&gt;
-
-&lt;p&gt;The process is straight forward:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Downsample the data to a convenient number of samples. Typically 6 to 8 are
-enough.&lt;/li&gt;
-&lt;li&gt;Normalize this downsampled data (usually &lt;a href=&#34;http://jmotif.github.io/sax-vsm_site/morea/algorithm/znorm.html&#34;&gt;z-Normalization&lt;/a&gt;).&lt;/li&gt;
-&lt;li&gt;Quantize the resulting data into a set of ranges (typically 8).&lt;/li&gt;
-&lt;li&gt;Assign a letter to each quantized value.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The resulting string encodes the shape of the time series data. Any two time
-series with the same final string encoding will have a similar shape.
-The SAX and &lt;a href=&#34;http://www.cs.ucr.edu/~eamonn/iSAX_2.0.pdf&#34;&gt;ISAX2&lt;/a&gt; papers give
-some example values for the quantization bands they found effective.&lt;/p&gt;
-
-&lt;p&gt;This is easier to visualize. The example data is blatantly rigged for
-demonstrative purposes. (We assume downsampling has already occurred).&lt;/p&gt;
-
-&lt;p&gt;
-&lt;figure &gt;
-    
-        &lt;img src=&#34;https://tcolgate.github.io/img/paa/paa.fig1.png&#34; /&gt;
-    
-    
-&lt;/figure&gt;
-
-
-&lt;figure class=&#34;alignright&#34;&gt;
-    
-        &lt;img src=&#34;https://tcolgate.github.io/img/paa/paa.fig2.png&#34; /&gt;
-    
-    
-&lt;/figure&gt;
-
-
-&lt;figure class=&#34;alignright&#34;&gt;
-    
-        &lt;img src=&#34;https://tcolgate.github.io/img/paa/paa.fig3.png&#34; /&gt;
-    
-    
-&lt;/figure&gt;
-&lt;/p&gt;
-
-&lt;p&gt;For each quantized value we assign a letter, A for the lowest band, H for the
-highest, in the example (rather conveniently), both would encode to
-&amp;ldquo;BBBFGGFE&amp;rdquo;. In practice, many of the spikes, errors, or drop offs in traffic
-result in drop and jumps in traffic that correlate well.&lt;/p&gt;
-
-&lt;p&gt;After some experimentation I eventually implemented, and successfully used this
-technique using a tool called
-&lt;a href=&#34;https://github.com/tcolgate/lookalike&#34;&gt;lookalike&lt;/a&gt;, developed for Cacti.&lt;/p&gt;
-
-&lt;p&gt;I toyed with ideas for implementing a similar solution for OpenTSDB and
-InfluxDB, but neither had internals that made it particularly easy (the latter
-used a map/reduce model internally that proved tricky, the former is written in
-java).&lt;/p&gt;
-
-&lt;h2 id=&#34;prometheus-implementation&#34;&gt;Prometheus Implementation&lt;/h2&gt;
-
-&lt;p&gt;Whilst Prometheus does not support string data for values, float64 does give us
-plenty of room to pack in a PAA encoding. 8 3-bit samples were generally
-sufficient for a reasonable match in lookalike. We can store 52 bit integers
-exactly in a float64, which is far more space than the 24-bits we require.&lt;/p&gt;
-
-&lt;p&gt;Prometheus is essentially an in-memory time series database with support
-for spilling out to disk. This has the advantage that all the data is easily
-available when an internal function executes.&lt;/p&gt;
-
-&lt;p&gt;Prometheus has no internal support for downsampling, so this needed to be done
-within the function (Lookalike used the inherent downsampling of an RRD file).
-For Prometheus I opted to implement
-&lt;a href=&#34;http://skemman.is/stream/get/1946/15343/37285/3/SS_MSthesis.pdf&#34;&gt;Least-Triangle-Three-Bucket&lt;/a&gt;.
-This was largely chosen because it seemed interesting, and there is a somewhat
-&amp;ldquo;visual&amp;rdquo; component to what PAA is trying to do. LTTB attempts to maintain the visual
-aspects of downsampled data for display purposes. In practice, the technique is
-expensive and simpler methods should be tried for comparison.&lt;/p&gt;
-
-&lt;p&gt;The process is PAA adjusted as follows:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;LTTB Downsample the data to 8 samples.&lt;/li&gt;
-&lt;li&gt;z-Normalize this downsampled data.&lt;/li&gt;
-&lt;li&gt;Quantize the resulting data.&lt;/li&gt;
-&lt;li&gt;Take each 3 bit sample and pack into a single integer&lt;/li&gt;
-&lt;li&gt;Convert that integer to a float64&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;usage&#34;&gt;Usage&lt;/h2&gt;
-
-&lt;p&gt;The paa() function takes a range vector and returns an instant vector. The actual value
-returned is not of much use directly.&lt;/p&gt;
-
-&lt;p&gt;Using the function is rather clumsy. By convention, Prometheus functions that
-alter the meaning of the data they process remove the metric name, which makes
-determining what has matched a bit tricky (label_replace tricks can be used to
-store the original name on a label, I&amp;rsquo;ve left such magic out of the examples
-for the sake of clarity).&lt;/p&gt;
-
-&lt;p&gt;To calculate a single PAA for the all time series for the last 15 minutes:&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;paa({__name__=~&amp;quot;.+&amp;quot;}[15m])&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;If we want to find all time series that correlate with our network traffic on eth0:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;paa({__name__=~&amp;quot;.+&amp;quot;}[15m])
-==
-paa(task:node_network_transmit_bytes:rate1m{device=&amp;quot;eth0&amp;quot;}[15m])
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;We can establish recording rules that will track the PAA for a 15m window
-of network traffic:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;task:node_network_receive_bytes:paa15m_rate1m =
-  paa(task:node_network_receieve_bytes:rate1m[15m])
-task:node_network_transmit_bytes:paa15m_rate1m =
-  paa(task:node_network_transmit_bytes:rate1m[15m])
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If we want to find all network interfaces transmitting traffic that correlates
-strongly with traffic received at myhost eth1):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;task:node_network_transmit_bytes:paa15m_rate1m
-==
-task:node_network_receive_bytes:paa15m_rate1m{instance=&amp;quot;myhost&amp;quot;,device=&amp;quot;eth1&amp;quot;}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Since this is using pre-recorded values, the match does not need do do any calculation and
-should therefore be very fast indeed.&lt;/p&gt;
-
-&lt;p&gt;A Prometheus query_range over a time space around the point of interest should highlight all
-series which have matched the PAA over a period of time.&lt;/p&gt;
-
-&lt;p&gt;To be truely useful in practice more direct support for PAA would need adding to Prometheus.&lt;/p&gt;
-
-&lt;h2 id=&#34;performance&#34;&gt;Performance&lt;/h2&gt;
-
-&lt;p&gt;Prometheus has excellent support internally for testing and benchmarking of its
-functions. Adding a couple of benchmarks shows paa() is well within the bounds of what is reasonable
-for a Prometheus function (though it is possible that the data generated by the benchmark suite
-is being very kind here).&lt;/p&gt;
-
-&lt;p&gt;I have left the results of the other Prometheus Benchmark functions in place for comparison purposes.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ go test -v -bench=. -run=XXX 2&amp;gt; /dev/null                                            paa ]
-BenchmarkHoltWinters4Week5Min-4             3000            369268 ns/op          986205 B/op        105 allocs/op
-BenchmarkHoltWinters1Week5Min-4            10000            102932 ns/op          207921 B/op         89 allocs/op
-BenchmarkHoltWinters1Day1Min-4             20000             76443 ns/op          146480 B/op         88 allocs/op
-BenchmarkChanges1Day1Min-4                 30000             54977 ns/op          109584 B/op         83 allocs/op
-BenchmarkPAA1Day1Min-4                     20000             61826 ns/op          109768 B/op         88 allocs/op
-BenchmarkPAA15Min5Sec-4                   100000             17012 ns/op           14794 B/op         84 allocs/op
-PASS
-ok      github.com/Prometheus/Prometheus/promql 8.941s
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;problems&#34;&gt;Problems&lt;/h2&gt;
-
-&lt;p&gt;In any sufficiently large environment, simple correlation will be fairly
-common. I found it useful in a system with hundreds of thousands of time-series,
-it may not prove so useful in environments with millions of time series. It seems
-likely that this is heavily dependent on the nature of the data being indexed.&lt;/p&gt;
-
-&lt;p&gt;The PAA itself is relatively hard work to calculate. In a large environment,
-calculating a PAA in a recording rule for a large number of time series will
-probably require considerable extra CPU, compared to typical rates or aggregates.
-However, since the usage and nature of the result is quite separate from data
-you might be graphing, it would not be unreasonable to have a separate instance
-purely for the purpose of indexing and searching.&lt;/p&gt;
-
-&lt;p&gt;Prometheus uses a double-delta encoding scheme for its internal and on-disk
-data storage. PAA values will not change &amp;ldquo;smoothly&amp;rdquo;, and are likely to stress
-the storage more than a regular time series.&lt;/p&gt;
-
-&lt;p&gt;The code does not gracefully handle NaN or Inf values in time series. Lookalike
-catered for this by adding an additional letter to the PAA representation
-that was used if a time series had no values in a given period. The
-downsampling function would need adjusting to take this into account, and the
-integer representation would need an extra bit per sample to allow such a
-representation.&lt;/p&gt;
-
-&lt;p&gt;I make no claim to any real expertise in this topic. I have gleaned what I
-could from papers written by those far more qualified than I, and applied it
-with a degree of success that could equally be attributable to blind luck. That
-being said, I had fun doing it, and my experience may be interesting, or
-enlightening, to others.&lt;/p&gt;
-
-&lt;h2 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h2&gt;
-
-&lt;p&gt;PAA is a simple and effective technique for time series indexing and searching.
-I&amp;rsquo;m satisfied that my naive implementation demonstrates that near-time indexing
-of streaming time-series data is practical.&lt;/p&gt;
-
-&lt;p&gt;The code implementing the feature can be see in this &lt;a href=&#34;https://github.com/Prometheus/Prometheus/pull/1991/files&#34;&gt;Pull Request&lt;/a&gt;. If you wish to try it out you can try the following:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ mkdir -p ${GOPATH}/github/Prometheus/
-$ cd ${GOPATH}/github/Prometheus/
-$ git clone https://github.com/tcolgate/Prometheus.git
-$ cd Prometheus
-$ make
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;(Many thanks to Brian Brazil and Julius Volz for reviewing this post)&lt;/p&gt;
-</description>
+      <description>Note: This post describes an extension to Prometheus that is unlikely to ever make it upstream, and definitely not in its current form.
+Time Series Indexing When we talk about an index for a time-series database, we are usually talking about an index of the metadata. In the case of Prometheus, such an index would help us locate all the series with certain labels, allowing us to quickly query, for example, all the http_requests_total timeseries that match a given handler or response code.</description>
     </item>
     
   </channel>
