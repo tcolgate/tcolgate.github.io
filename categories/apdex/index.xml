@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>apdex on Magic Sand</title>
+    <link>https://tcolgate.github.io/categories/apdex/</link>
+    <description>Recent content in apdex on Magic Sand</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 03 Mar 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://tcolgate.github.io/categories/apdex/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Prometheus: Apdex alerting (Qubit Eng Blog)</title>
+      <link>https://tcolgate.github.io/blog/prometheus-apdex-alerting-qubit-eng-blog/</link>
+      <pubDate>Sat, 03 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://tcolgate.github.io/blog/prometheus-apdex-alerting-qubit-eng-blog/</guid>
+      <description>Note: This was originally posted on the Qubit Engineering Blog), and CopyRight is, at the time of writing, owned by Coveo. It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
+I’m going to take a break from our series on Production Kubernetes to write up a couple of smaller articles on Prometheus. This article will give an overview of Apdex, and go on to describe a practical approach to implementing Apdex alerts in Prometheus.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Monitoring, SRE, and Miscellany">
+
+<base href="https://tcolgate.github.io/">
+<title>
+
+
+     Prometheus: K8s Cronjob alerts (Qubit Eng Blog) 
+
+</title>
+<link rel="canonical" href="https://tcolgate.github.io/blog/prometheus-k8s-cronjob-alerts-qubit-eng-blog/">
+
+
+<script type="text/javascript">
+    var baseURL = 'https:\/\/tcolgate.github.io\/';
+    var host = baseURL.substring(0, baseURL.length - 1).replace(/\//g, '');
+    if ((host === window.location.host) && (window.location.protocol !== 'https:')) {
+        window.location.protocol = 'https:';
+    }
+</script>
+
+
+
+
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/default.min.css">
+
+
+
+
+
+<link rel="stylesheet" href="https://tcolgate.github.io/css/reset.css">
+<link rel="stylesheet" href="https://tcolgate.github.io/css/pygments.css">
+<link rel="stylesheet" href="https://tcolgate.github.io/css/main.css">
+
+
+
+
+
+
+<link rel="shortcut icon"
+
+    href="https://tcolgate.github.io/img/leaf.ico"
+
+>
+
+
+
+</head>
+
+
+<body lang="en">
+
+<section class="header"> 
+    <div class="container">
+        <div class="content">
+            <a href="https://tcolgate.github.io/"><div class="name">Tristan Colgate-McFarlane</div></a>
+            <nav>
+                <ul>
+                    <a href="https://tcolgate.github.io/blog/"><li>Blog</li></a>
+                    <a href="https://tcolgate.github.io/about/"><li>About</li></a>
+                    <a href="https://tcolgate.github.io/code/"><li>Code</li></a>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="icons">
+    <div class="container">
+        <div class="content">
+
+        
+            <a href="//github.com/tcolgate" target="_blank">
+                <i class="icon ion-social-github"></i>
+            </a>
+        
+        
+        
+
+        
+            <a href="//linkedin.com/in/tristan-colgate-762b052" target="_blank">
+                <i class="icon ion-social-linkedin"></i>
+            </a>
+        
+
+        
+
+        
+
+        
+        </div>
+    </div>
+</section>
+
+
+<section class="main post non-narrow zero-top-spacing">
+    <div class="container">
+        <div class="content">
+            <div class="front-matter">
+                <div class="title-container">
+                    <div class="page-heading">
+
+    Prometheus: K8s Cronjob alerts (Qubit Eng Blog)
+
+</div>
+
+                    <div class="initials"><a href="https://tcolgate.github.io/">tcm</a></div>
+                </div>
+                <div class="meta">
+                    <div class="date" title="Sun Mar 4 2018 00:00:00 UTC">Mar 4, 2018</div>
+                    <div class="reading-time"><div class="middot"></div>7 minutes read</div>
+                </div>
+            </div>
+            <div class="markdown">
+                <p><em>Note:</em> This was originally posted on the <a href="https://medium.com/@tristan_96324/prometheus-k8s-cronjob-alerts-94bee7b90511">Qubit Engineering
+Blog</a>
+<a href="https://www.coveo.com/en">Coveo</a>. It was written, and illustrated, by me, but
+would have been unreadable but for input and editing by my fantastic teammates.</p>
+<p>Kubernetes <a href="https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/#cron-jobsL">Jobs</a> and <a href="https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/">Cronjobs</a> are powerful tools that present some
+interesting challenges to monitoring. We’ll demonstrate rules using
+<a href="https://github.com/kubernetes/kube-state-metrics">kube-state-metrics</a> and Prometheus to monitor and alert on failed jobs.
+We’ll discuss how the rules were formulated, and how to leverage Prometheus
+label matching techniques for advanced alerting.  I have attempted to
+demonstrate the workflow for developing such alerts.  The final result, for the
+bored or impatient, can be found
+<a href="https://github.com/tcolgate/prometheus-rules/blob/master/kubernetes/cron.yaml">here</a>.</p>
+<p>Alerting of traditional Unix cronjobs was “simple”, if the job failed
+you’d get an email. Most job scheduling systems that have followed have
+provided the same experience, Kubernetes does not. One <a href="https://www.robustperception.io/monitoring-batch-jobs-in-python/">excellent</a>
+approach to alerting jobs is to use the Prometheus push gateway, allowing
+us to push richer metrics than simple success/failure. This approach has
+it’s downsides; we have to update the code for our jobs, we also have to
+explicitly configure a push gateway location and update it if it changes
+(a burden alleviated by the pull based metrics for long lived workloads).
+Tools such as <a href="https://sentry.io/welcome/">Sentry</a> can also be used, but will also require changes to
+simple jobs.With some effort we can achieve an easy middle ground.</p>
+<h2 id="k8s-jobs-and-cronjobs">K8s Jobs and Cronjobs</h2>
+<p>In Kubernetes <code>cronjobs</code> are built on <code>jobs</code> which are themselves built
+on pods. Jobs are powerful things allowing us to implement several
+different workflows, the combination of options can be overwhelming
+compared to a traditional Unix cron job.</p>
+<p>The variety of options makes it difficult to establish one simple rule for
+alerting failed jobs. Things are easier if we restrict ourselves to a
+simpler subset of possible options. We will focus on the following style
+of job:</p>
+<ul>
+<li>Run periodically on a schedule</li>
+<li>Non-concurrent</li>
+</ul>
+<p>Concurrent jobs permit a second instance of a task to start if a previous
+task for a job is still running, this is the behaviour of a classic cron
+task. I have focused on non-concurrent tasks. I suggest that
+non-concurrent tasks have the desired behaviour for the majority of
+typical systems administration tasks (database backups, batch reindexes
+and such like), people often overlook the possibility of job runs
+overlapping.</p>
+<p>The relationship between cronjobs and jobs makes the task ahead difficult.
+To make our life easier we will put one requirement on the jobs we create,
+they will have to include a label that associates them with the original
+cronjob. Below we present an example of our ideal cronjob:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="w">   </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">batch/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">CronJob</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="l">our-task</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt"> schedule</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;*/5 * * * *&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt"> successfulJobsHistoryLimit</span><span class="p">:</span><span class="w"> </span><span class="m">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt"> concurrencyPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Forbid</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt"> jobTemplate</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">   metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">     labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">       cronjob</span><span class="p">:</span><span class="w"> </span><span class="l">our-task</span><span class="w"> </span><span class="c"># &lt;-- match created jobs with the cronjob</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">   spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">     backoffLimit</span><span class="p">:</span><span class="w"> </span><span class="m">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">     template</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">       metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">         labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">           cronjob</span><span class="p">:</span><span class="w"> </span><span class="l">our-task</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">       spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">         containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">         - name</span><span class="p">:</span><span class="w"> </span><span class="l">our-task</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">           command</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="l">           - /user/bin/false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">           image</span><span class="p">:</span><span class="w"> </span><span class="l">alpine</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">         restartPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Never</span><span class="w">
+</span></span></span></code></pre></div><h2 id="building-our-alert">Building our alert</h2>
+<p>We are also going to need some metrics to get us started. K8s does not
+provide us any by default, but fortunately we can leverage
+<a href="https://github.com/kubernetes/kube-state-metrics">kube-state-metrics</a> (you will need at least version 1.2). Once
+installed we will get the following metrics for the above job:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-promql" data-lang="promql"><span class="line"><span class="cl"><span class="w">   </span><span class="nv">kube_cronjob_labels</span><span class="p">{</span><span class="nl">cronjob</span><span class="o">=</span><span class="p">&#34;</span><span class="s">our-task</span><span class="p">&#34;,</span><span class="w"> </span><span class="nl">namespace</span><span class="o">=</span><span class="p">&#34;</span><span class="s">default</span><span class="p">&#34;}</span><span class="w"> </span><span class="mi">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nv">kube_job_created</span><span class="p">{</span><span class="nl">job</span><span class="o">=</span><span class="p">&#34;</span><span class="s">our-task-1520165700</span><span class="p">&#34;,</span><span class="w"> </span><span class="nl">namespace</span><span class="o">=</span><span class="p">&#34;</span><span class="s">default</span><span class="p">&#34;}</span><span class="w"> </span><span class="mf">1.520165707</span><span class="err">e</span><span class="o">+</span><span class="mi">09</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nv">kube_job_failed</span><span class="p">{</span><span class="nl">condition</span><span class="o">=</span><span class="p">&#34;</span><span class="s">false</span><span class="p">&#34;,</span><span class="err"> </span><span class="nl">job</span><span class="o">=</span><span class="p">&#34;</span><span class="s">our-task-1520165700</span><span class="p">&#34;,</span><span class="err"> </span><span class="nl">namespace</span><span class="o">=</span><span class="p">&#34;</span><span class="s">default</span><span class="p">&#34;}</span><span class="w"> </span><span class="mi">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nv">kube_job_failed</span><span class="p">{</span><span class="nl">condition</span><span class="o">=</span><span class="p">&#34;</span><span class="s">true</span><span class="p">&#34;,</span><span class="w"> </span><span class="nl">job</span><span class="o">=</span><span class="p">&#34;</span><span class="s">our-task-1520165700</span><span class="p">&#34;,</span><span class="w"> </span><span class="nl">namespace</span><span class="o">=</span><span class="p">&#34;</span><span class="s">default</span><span class="p">&#34;}</span><span class="w"> </span><span class="mi">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nv">kube_job_labels</span><span class="p">{</span><span class="nl">job</span><span class="o">=</span><span class="p">&#34;</span><span class="s">our-task-1520165700</span><span class="p">&#34;,</span><span class="w"> </span><span class="nl">label_cronjob</span><span class="o">=</span><span class="p">&#34;</span><span class="s">our-task</span><span class="p">&#34;,</span><span class="err"> </span><span class="nl">namespace</span><span class="o">=</span><span class="p">&#34;</span><span class="s">default</span><span class="p">&#34;}</span><span class="w"> </span><span class="mi">1</span><span class="w">
+</span></span></span></code></pre></div><p>This shows the primary set of metrics we will be using to construct our
+alert. What is not shown above is the status of the cronjob. The big
+challenge with K8s cronjob alerting is that cronjobs themselves do not
+possess any status information, beyond the last time the cronjob created a
+job. The status information only exists on the job that the cronjob
+creates.</p>
+<p>In order to determine if our cronjob is failing, our first order of
+business is to find which jobs we should be looking at. A K8s cronjob
+creates new job objects and keeps a number of them around to help us debug
+the runs of our jobs. We have to be determine which job corresponds to the
+last run of our cronjob. If we have added the cronjob label to the jobs as
+above, we can find the last run time of the jobs for a given cronjob as
+follows:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">         max(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">           kube_job_status_start_time</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">           * ON(exported_job) GROUP_RIGHT()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">           kube_job_labels{label_cronjob!=&#34;&#34;}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">         ) BY (exported_job, label_cronjob)</span><span class="w">
+</span></span></span></code></pre></div><p>This query demonstrates an important technique when working with
+kube-state-metrics. For each API object it exported data on, it exports a
+time series including all the labels for that object. These time series
+have a value of 1. As such we can join the set of labels for an object
+onto the metrics about that object by multiplication.</p>
+<p>Depending on how your Prometheus instance is configured, the value of the
+job label on your metrics will likely be “kube-state-metrics”.
+kube-state-metrics adds a <code>job</code> label itself with the name of the job
+object. Prometheus resolves this collision of label names by including the
+raw metric’s label as an <code>exported_job label</code>.</p>
+<p>Since we are querying the start time of jobs, and there should only every
+be one job with a given name, you may wonder why we need the
+max aggregation. Manually plugging the query into Prometheus may convince
+you that it is unnecessary. Consider though that you may have multiple
+instances of kube-state-metrics running for redundancy. Using max ensures
+our query is valid even if we have multiple instances of
+kube-state-metrics running. Issues of duplicate metrics are common when
+constructing production recording rules and alerts.</p>
+<p>We can find the start time of the most recent job for a given cronjob by
+finding the maximum of all job start times as follows:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">         max(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">           kube_job_status_start_time                                    </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">           * ON(exported_job) GROUP_RIGHT()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">           kube_job_labels{label_cronjob!=&#34;&#34;}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">         ) BY (label_cronjob),</span><span class="w">
+</span></span></span></code></pre></div><p>The only difference between this and the previous query is in the labels
+used for the aggregation. Now that we have the start time of each job, and
+the start time of the most recent job, we can do a simple equality match
+to find the start time of the most recent job for a given cronjob. We will
+create a metric for this</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="w"> </span><span class="nt"> - record</span><span class="p">:</span><span class="w"> </span><span class="l">job_cronjob:kube_job_status_start_time:max                    </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="nt">   expr</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      label_replace(
+</span></span></span><span class="line"><span class="cl"><span class="sd">        label_replace(
+</span></span></span><span class="line"><span class="cl"><span class="sd">          max(
+</span></span></span><span class="line"><span class="cl"><span class="sd">            kube_job_status_start_time
+</span></span></span><span class="line"><span class="cl"><span class="sd">            * ON(exported_job) GROUP_RIGHT()
+</span></span></span><span class="line"><span class="cl"><span class="sd">            kube_job_labels{label_cronjob!=&#34;&#34;}
+</span></span></span><span class="line"><span class="cl"><span class="sd">          ) BY (exported_job, label_cronjob)
+</span></span></span><span class="line"><span class="cl"><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">          == ON(label_cronjob) GROUP_LEFT()
+</span></span></span><span class="line"><span class="cl"><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">          max(
+</span></span></span><span class="line"><span class="cl"><span class="sd">            kube_job_status_start_time
+</span></span></span><span class="line"><span class="cl"><span class="sd">            * ON(exported_job) GROUP_RIGHT()
+</span></span></span><span class="line"><span class="cl"><span class="sd">            kube_job_labels{label_cronjob!=&#34;&#34;}
+</span></span></span><span class="line"><span class="cl"><span class="sd">          ) BY (label_cronjob),
+</span></span></span><span class="line"><span class="cl"><span class="sd">          &#34;job&#34;, &#34;$1&#34;, &#34;exported_job&#34;, &#34;(.+)&#34;),
+</span></span></span><span class="line"><span class="cl"><span class="sd">        &#34;cronjob&#34;, &#34;$1&#34;, &#34;label_cronjob&#34;, &#34;(.+)&#34;)</span><span class="w"> 
+</span></span></span></code></pre></div><p>In addition to the equality test, we have also taken the opportunity to
+adjust the labels to be a little more aesthetically pleasing. Now that we
+have the most recently started job for a given cronjob, it is a simple
+step to find which, if any, have failed attempts:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="w">   </span>- <span class="nt">record</span><span class="p">:</span><span class="w"> </span><span class="l">job_cronjob:kube_job_status_failed:sum</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt"> expr</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">        clamp_max(
+</span></span></span><span class="line"><span class="cl"><span class="sd">          job_cronjob:kube_job_status_start_time:max,
+</span></span></span><span class="line"><span class="cl"><span class="sd">        1)
+</span></span></span><span class="line"><span class="cl"><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">        * ON(job) GROUP_LEFT()
+</span></span></span><span class="line"><span class="cl"><span class="sd">   
+</span></span></span><span class="line"><span class="cl"><span class="sd">        label_replace(
+</span></span></span><span class="line"><span class="cl"><span class="sd">          label_replace(
+</span></span></span><span class="line"><span class="cl"><span class="sd">            (kube_job_status_failed != 0),
+</span></span></span><span class="line"><span class="cl"><span class="sd">            &#34;job&#34;, &#34;$1&#34;, &#34;exported_job&#34;, &#34;(.+)&#34;),
+</span></span></span><span class="line"><span class="cl"><span class="sd">          &#34;cronjob&#34;, &#34;$1&#34;, &#34;label_cronjob&#34;, &#34;(.+)&#34;)</span><span class="w">   
+</span></span></span></code></pre></div><p>The initial <code>clamp_max</code> clause is used to transform our start times metric
+into a set of time series we can use purely for the purpose of label
+matching to filter another set of metrics. Multiplication by 1 (or
+addition of 0), is a useful means of filter and merging time series and it
+is well worth taking the time to understand the technique. We adjust the
+labels on the raw <code>kube_job_status_failed</code> to match our start time metric so
+ensure the labels have the same meaning as those on our
+<code>job_cronjob:kube_job_status_start_time:max metric</code>. The label matching on
+the multiplication will then perform our filtering. We now have a metric
+containing the set of most recently failed jobs, labelled by their parent
+cronjob. Constructing an alert from here is trivial:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="w"> </span>- <span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l">CronJobStatusFailed</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="nt">   expr</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      job_cronjob:kube_job_status_failed:sum
+</span></span></span><span class="line"><span class="cl"><span class="sd">      * ON(cronjob) GROUP_RIGHT()
+</span></span></span><span class="line"><span class="cl"><span class="sd">      kube_cronjob_labels
+</span></span></span><span class="line"><span class="cl"><span class="sd">      &gt; 0
+</span></span></span><span class="line"><span class="cl"><span class="sd">    for: 1m
+</span></span></span><span class="line"><span class="cl"><span class="sd">    annotations:
+</span></span></span><span class="line"><span class="cl"><span class="sd">      description: &#39;{{ $labels.cronjob }} last run has failed {{ $value }}
+</span></span></span><span class="line"><span class="cl"><span class="sd"> times.&#39;</span><span class="w"> 
+</span></span></span></code></pre></div><p>We use the <code>kube_cronjob_labels</code> here to merge in labels from the original
+cronjob. By labelling cronjobs with Slack channel, email address, or
+OpsGenie team information, alerts can be routed to the specific team that
+owns the job.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Constructing Prometheus recording rules and alerts can be tricky. The
+example presented above, and in the Apdex alerting article, are fairly
+typical of the techniques needed for more advanced alerts. Hopefully these
+two articles have given you some insight and tips for your own alerting
+needs.</p>
+
+                <br>
+                <p><a href="https://tcolgate.github.io/blog/">Back to posts</a></p>
+            </div>
+            <br>
+            <div class="disqus">
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+    var pageTracker = _gat._getTracker("XYZ");
+    pageTracker._trackPageview();
+} catch(err) {}
+</script>
+
+
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js"></script>
+
+  <script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+  </script>
+
+
+
+</body>
+</html>
+

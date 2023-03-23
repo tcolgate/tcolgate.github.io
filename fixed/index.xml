@@ -1,14 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Fixed-rss on Magic Sand</title>
-    <link>https://tcolgate.github.io/fixed/index.xml</link>
-    <description>Recent content in Fixed-rss on Magic Sand</description>
+    <title>Fixed on Magic Sand</title>
+    <link>https://tcolgate.github.io/fixed/</link>
+    <description>Recent content in Fixed on Magic Sand</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Wed, 14 Sep 2016 21:48:57 +0100</lastBuildDate>
-    <atom:link href="https://tcolgate.github.io/fixed/index.xml" rel="self" type="application/rss+xml" />
-    
+    <lastBuildDate>Wed, 14 Sep 2016 21:48:57 +0100</lastBuildDate><atom:link href="https://tcolgate.github.io/fixed/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>code</title>
       <link>https://tcolgate.github.io/code/</link>
