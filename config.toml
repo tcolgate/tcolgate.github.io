@@ -11,6 +11,12 @@ pygmentsuseclasses = true
 #disqusShortname = "cocoaexamplesite" # Comment out to disable Disqus.
 pluralizelisttitles = false
 theme = "cocoa"
+cleanDestinationDir = true
+copyright = ""
+enableGitInfo = true
+enableRobotsTXT = true
+paginate  = true
+
 
 [permalinks]
 fixed = ":title/"
