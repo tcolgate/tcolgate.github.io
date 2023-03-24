@@ -12,7 +12,7 @@ categories:
     - "timeseries"
 ---
 
-*Note:* This was originally posted on the [Qubit Engineering Blog](https://medium.com/qubit-engineering/using-seasonality-in-prometheus-alerting-d90e68337a4c), and CopyRight is, at the time of writing, owned by [Cove](https://www.coveo.com/en). It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
+*Note:* This was originally posted on the [Qubit Engineering Blog](https://medium.com/qubit-engineering/using-seasonality-in-prometheus-alerting-d90e68337a4c), and CopyRight is, at the time of writing, owned by [Coveo](https://www.coveo.com/en). It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
 
 In this post, we will show a worked example of building a Prometheus alert for a
 typical user facing service.
