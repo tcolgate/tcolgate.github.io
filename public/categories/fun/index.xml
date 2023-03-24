@@ -13,7 +13,7 @@
       <pubDate>Mon, 23 Jan 2017 00:00:00 +0000</pubDate>
       
       <guid>https://tcolgate.github.io/blog/using-seasonality-in-prometheus-alerting-qubit-eng-blog/</guid>
-      <description>Note: This was originally posted on the Qubit Engineering Blog, and CopyRight is, at the time of writing, owned by Cove. It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
+      <description>Note: This was originally posted on the Qubit Engineering Blog, and CopyRight is, at the time of writing, owned by Coveo. It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
 In this post, we will show a worked example of building a Prometheus alert for a typical user facing service.
 Introduction At Qubit we have recently completely
 a migration from our legacy Shinken and Graphite based monitoring to a system built around Prometheus, a modern time series database.</description>
