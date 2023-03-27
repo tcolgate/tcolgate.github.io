@@ -250,7 +250,7 @@ require them to understand Vault policies and would be very prone to
 error.
 
 Since we already have a central authentication mechanism based on JWTs
-(discussed in our [previous article](https://medium.com/qubit-engineering/kubernetes-up-integrated-authentication-5d2c908c2810), we elected to leverage it. We
+(discussed in our [previous article]({{< ref "k8s-ui-1" >}}), we elected to leverage it. We
 have built a small Secret API that sits in front of Vault and is
 responsible for managing AppRoles and policies. The deployment process can
 request the RoleID for a given application from the Secret API. After

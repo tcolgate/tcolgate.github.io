@@ -15,7 +15,7 @@ cleanDestinationDir = true
 copyright = ""
 enableGitInfo = true
 enableRobotsTXT = true
-paginate  = true
+paginate = 8
 
 
 [permalinks]
@@ -36,3 +36,4 @@ HighlightJS = true
 Initials = "tcm" # Displayed on single post page; DEPRECATED in v0.3.0.
 Lang = "en"
 LinkedIn = "//linkedin.com/in/tristan-colgate-762b052"
+mastodon = "https://toot.community/@tmcfarlane"
