@@ -1,13 +1,10 @@
----
-title: "Kubernetes Up & Integrated — Authentication (Qubit Eng Blog)"
-
-draft: false
-date: "2017-10-27"
-
-description: ""
-categories:
-    - "Kubernetes"
----
++++
+title = "Kubernetes Up & Integrated — Authentication (Qubit Eng Blog)"
+summary = "An in depth look at how Qubit set up our k8s cluster authentication"
+draft = false
+date = "2017-10-27"
+categories = [ "Tech", "Kubernetes" ]
++++
 
 *Note:* This was originally posted on the [Qubit Engineering Blog](https://medium.com/qubit-engineering/kubernetes-up-integrated-authentication-5d2c908c2810), and CopyRight is, at the time of writing, owned by
 [Coveo](https://www.coveo.com/en). It was written, and illustrated, by me, but

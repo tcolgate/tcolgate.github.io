@@ -6,24 +6,24 @@ languageCode = "en-GB"
 layoutdir = "layouts"
 publishdir = "public"
 author = "Tristan Colgate-McFarlane"
-title = "Magic Sand"
+title = "Collected writings of a tinkerer"
 pygmentsuseclasses = true
-#disqusShortname = "cocoaexamplesite" # Comment out to disable Disqus.
 pluralizelisttitles = false
-theme = "cocoa"
+# theme = "local-cocoa"
+theme = "rusty-typewriter"
 cleanDestinationDir = true
 copyright = ""
 enableGitInfo = true
 enableRobotsTXT = true
-paginate = 8
 
+[pagination]
+pageSize = 8
 
 [permalinks]
 fixed = ":title/"
 blog = "blog/:slug/"
 
 [params]
-Author = "Tristan Colgate-McFarlane"
 CacheBuster = true
 DateForm = "Jan 2, 2006"
 DateFormFull = "Mon Jan 2 2006 15:04:05 MST"
@@ -37,3 +37,32 @@ Initials = "tcm" # Displayed on single post page; DEPRECATED in v0.3.0.
 Lang = "en"
 LinkedIn = "//linkedin.com/in/tristan-colgate-762b052"
 mastodon = "https://toot.community/@tmcfarlane"
+
+[params.author]
+name = "Tristan Colgate-McFarlane"
+
+[params.rtwt]
+  sidePane = true
+  countPageItems = 7
+
+[params.rtwt.home]
+  showBio = false
+  showAuthorImg = false
+  sidePaneTags = true
+  showFeatured = false
+  showRecent = true
+  hideRecentWhenFeatured = true
+  countRecent = 5
+
+[params.rtwt.side.home]
+  sidePaneSticky = false
+  taxonomies = ['categories','tags']
+  countTaxonomy = 5
+
+[params.rtwt.side.single]
+  sidePaneSticky = true
+  showDetails = true
+  showTableOfContents = true
+  showAttachments = true
+  showRelated = true
+  countRelated = 5

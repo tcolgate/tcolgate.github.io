@@ -1,8 +1,9 @@
 +++
 date = "2017-03-16T19:56:53Z"
 title = "Full codebase review with Gerrit"
-draft = true
-
+summary = "A note on how to review an entire code base in one go with Gerrit"
+draft = false
+categories = ["Tech"]
 +++
 
 * Create a new project in gerrit

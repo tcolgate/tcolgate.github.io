@@ -1,16 +1,10 @@
----
-title: "Using Seasonality in Prometheus alerting (Qubit Eng Blog)"
-
-draft: false
-date: "2017-01-23"
-
-description: "In this post, we will show a worked example of building a Prometheus alert for a typical user facing service"
-categories:
-    - "Prometheus"
-    - "cacti"
-    - "fun"
-    - "timeseries"
----
++++
+title =  "Using Seasonality in Prometheus alerting (Qubit Eng Blog)"
+summary =  "In this post, we will show a worked example of building a Prometheus alert for a typical user facing service"
+draft =  false
+date =  "2017-01-23"
+categories = [ "Tech", "Prometheus", "cacti", "fun", "timeseries" ]
++++
 
 *Note:* This was originally posted on the [Qubit Engineering Blog](https://medium.com/qubit-engineering/using-seasonality-in-prometheus-alerting-d90e68337a4c), and CopyRight is, at the time of writing, owned by [Coveo](https://www.coveo.com/en). It was written, and illustrated, by me, but would have been unreadable but for input and editing by my fantastic teammates.
 
