@@ -4,8 +4,11 @@ date = "2025-10-09"
 summary = "This post describes an experiment with expired 1971 glass plates"
 draft = false
 categories = [ "Photography" , "Ilford" , "Glass Plates" ]
-tags = [ "ilford"]
+tags = ["ilford"]
+images = ["/img/35mmc-five-frames-with-vintage-glass/PB060088.JPG"]
 +++
+
+{{< figure src="/img/35mmc-five-frames-with-vintage-glass/PB060088.JPG">}}
 
 *Note:* This post has been written for [35mmc](https://35mmc.com), and will be
 removed from this site once it is published there
@@ -48,7 +51,7 @@ to at least check the claim.
 
 ## Testing the Plates
 
-{{< figure src="/img/35mmc-five-frames-with-vintage-glass/PB060088.JPG" caption="Contents of the box. The plates are packed in fours, two pairs of plates facing emulsion side in with a white cardboard separator over the edges. wrapped in a thick light tight paper." >}}
+{{< figure src="/img/35mmc-five-frames-with-vintage-glass/20251009_115213.jpg" caption="Contents of the box. The plates are packed in fours, two pairs of plates facing emulsion side in with a white cardboard separator over the edges. wrapped in a thick light tight paper." >}}
 
 With only 12 plates and with them being so old, I did not want to go straight
 ahead with a test exposures. I have some prior experience with sensitometry[^1]
