@@ -70,3 +70,24 @@ name = "Tristan Colgate-McFarlane"
 [services]
   [services.disqus]
     shortname = 'tcolgate-blog'
+
+[[menus.main]]
+name = 'About'
+pageRef = '/fixed/about.md'
+weight = 3
+
+[outputFormats]
+ [outputFormats.SearchIndex]
+  mediaType = "application/json"
+  baseName = "searchindex"
+  isPlainText = true
+  notAlternative = true
+
+[mediaTypes]
+ [mediaTypes."application/json"]
+  suffixes = ["json"]
+
+[outputs]
+  home = ["HTML","RSS", "SearchIndex"]
+  section = ['html', 'rss']
+
