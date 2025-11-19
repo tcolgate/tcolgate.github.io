@@ -584,3 +584,5 @@ have that option. Ultimately we hope that this post, and the others to
 follow will be useful in discussing some of the more difficult aspects of
 production Kubernetes use, and help feed into more general solution that
 can benefit the whole community.
+
+{{< disqus >}}

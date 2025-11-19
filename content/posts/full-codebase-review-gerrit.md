@@ -49,3 +49,4 @@ git push ssh://tcolgate@src.curlpipesh.it:29418/golorp review:refs/for/empty
 We're now ready to review! Log into the gerrit UI and there's a change request,
 with out entire codebase waiting for us.
 
+{{< disqus >}}

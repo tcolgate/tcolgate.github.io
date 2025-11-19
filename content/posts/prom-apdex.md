@@ -256,3 +256,5 @@ is a concise representation of user experience. Prometheus provides us all
 the tools we need to calculate Apdex. The same technique presented here
 can be used to estimate similarly “Business-centric” metrics, such as
 error-budgets and service availability.
+
+{{< disqus >}}

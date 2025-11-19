@@ -340,3 +340,5 @@ membership, and thus authentication and authorisation. kubectl’s cmd-path
 feature has allowed us to ensure that the developer’s experience of using
 the clusters is in line with what they will find in any Kubernetes
 tutorial on-line.
+
+{{< disqus >}}

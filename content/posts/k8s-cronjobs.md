@@ -244,3 +244,4 @@ typical of the techniques needed for more advanced alerts. Hopefully these
 two articles have given you some insight and tips for your own alerting
 needs.
 
+{{< disqus >}}
