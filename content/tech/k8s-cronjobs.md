@@ -3,7 +3,8 @@ title =  "Prometheus: K8s Cronjob alerts (Qubit Eng Blog)"
 summary = "A legacy technique for alerting on failing Kubernetes cron jobs"
 draft =  false
 date =  "2018-03-04"
-categories = [ "Tech", "Prometheus" ,"Kubernetes" ,"monitoring" ,"alerting" ]
+categories = [ "Tech", "Prometheus" ,"Kubernetes"]
+tags = [ "monitoring" ,"alerting" ]
 +++
 
 *Note:* This was originally posted on the [Qubit Engineering

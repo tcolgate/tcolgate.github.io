@@ -3,7 +3,8 @@ title = "Time Series Search in Prometheus"
 date = "2016-09-20"
 summary = "This post describes an experiment in extending Prometheus to support time searching matching"
 draft = false
-categories = [ "Tech", "Prometheus" ,"cacti" ,"fun" ,"timeseries" ]
+categories = [ "Tech", "Prometheus" ]
+tags = [ "cacti" ,"fun" ,"timeseries" ]
 +++
 
 *Note:* This post describes an extension to [Prometheus](https://Prometheus.io) that is unlikely to ever make it upstream,

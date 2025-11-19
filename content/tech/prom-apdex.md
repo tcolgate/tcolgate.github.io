@@ -3,7 +3,8 @@ title = "Prometheus: Apdex alerting (Qubit Eng Blog)"
 summary = "A method for Apdex based service availability monitoring and alerting with Prometheus"
 draft = false
 date = "2018-03-03"
-categories = [ "Tech", "Prometheus" , "timeseries" , "apdex" , "monitoring" ]
+categories = [ "Tech", "Prometheus" ]
+tags = [ "timeseries" , "apdex" , "monitoring" ]
 +++
 
 *Note:* This was originally posted on the [Qubit Engineering

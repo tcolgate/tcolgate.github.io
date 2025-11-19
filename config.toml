@@ -72,6 +72,16 @@ name = "Tristan Colgate-McFarlane"
     shortname = 'tcolgate-blog'
 
 [[menus.main]]
+name = 'Photography'
+pageRef = '/photography'
+weight = 1
+
+[[menus.main]]
+name = 'Tech'
+pageRef = '/tech'
+weight = 2
+
+[[menus.main]]
 name = 'About'
 pageRef = '/fixed/about.md'
 weight = 3

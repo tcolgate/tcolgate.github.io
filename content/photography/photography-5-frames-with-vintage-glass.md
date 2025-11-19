@@ -3,8 +3,8 @@ title = "Five Frames with Vintage Glass"
 date = "2025-10-09"
 summary = "This post describes an experiment with expired 1971 glass plates"
 draft = false
-categories = [ "Photography" , "Ilford" , "Glass Plates" ]
-tags = ["ilford"]
+categories = [ "Photography" , "Darkroom" ]
+tags = ["ilford", "glassPlate", "ensignCameo"]
 images = ["/img/35mmc-five-frames-with-vintage-glass/PB060088.JPG"]
 disqus_identifier = "tcolgate-blog"
 +++

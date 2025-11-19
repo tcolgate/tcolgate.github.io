@@ -3,7 +3,8 @@ title = "Kubernetes Up & Integrated — Secrets & Configuration (Qubit Eng Blog)
 summary = "An in depth look in Qubit's kubernetes secret distribution method built on top of Vault"
 draft = false
 date = "2017-11-22"
-categories = [ "Tech", "Kubernetes", "Vault" ]
+categories = [ "Tech", "Kubernetes"]
+tags = ["vault"]
 +++
 *Note:* This was originally posted on the [Qubit Engineering Blog](https://medium.com/qubit-engineering/kubernetes-up-integrated-secrets-configuration-5a15b9f5a6c6), and CopyRight is, at the time of writing, owned by
 [Coveo](https://www.coveo.com/en). It was written, and illustrated, by me, but
