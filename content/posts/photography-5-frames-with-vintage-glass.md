@@ -199,3 +199,5 @@ happens, but when it does I will still have the option of self coating plates,
 and have begun investigating how I can adapt an old pack film holder for
 collodion processes.
 
+{{ partial "disqus.html" . }}
+

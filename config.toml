@@ -66,3 +66,7 @@ name = "Tristan Colgate-McFarlane"
   showAttachments = true
   showRelated = true
   countRelated = 5
+
+[services]
+  [services.disqus]
+    shortname = 'tcolgate-blog'
