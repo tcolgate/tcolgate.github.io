@@ -6,6 +6,7 @@ draft = false
 categories = [ "Photography" , "Ilford" , "Glass Plates" ]
 tags = ["ilford"]
 images = ["/img/35mmc-five-frames-with-vintage-glass/PB060088.JPG"]
+disqus_identifier = "tcolgate-blog"
 +++
 
 {{< figure src="/img/35mmc-five-frames-with-vintage-glass/PB060088.JPG">}}
@@ -199,5 +200,5 @@ happens, but when it does I will still have the option of self coating plates,
 and have begun investigating how I can adapt an old pack film holder for
 collodion processes.
 
-{{ partial "disqus.html" . }}
+{{< disqus >}}
 
