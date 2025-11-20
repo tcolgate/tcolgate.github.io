@@ -1,12 +1,11 @@
 +++
-title = "Five Frames with Vintage Glass with an Olympus Pen FV"
+title = "Five Frames of Trains with an Olympus Pen FV"
 date = "2023-11-12"
 summary = "Post for 35mmc on my travels with the Pen FV camera"
 draft = false
 categories = [ "Photography" ]
 tags = ["ilford", "olympusPenFV", "xp2", "zuiko"]
 images = ["/img/five-frames-with-trains/P9250104.jpg"]
-disqus_identifier = "tcolgate-blog"
 +++
 
 {{< figure src="/img/35mmc-five-frames-with-trains/P9250104.jpg">}}
