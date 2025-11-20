@@ -7,3 +7,7 @@ figcaption {
     text-align: center;
     font-size: smaller;
 }
+
+img.feed-img {
+    height: 0.8em;
+}

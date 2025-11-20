@@ -13,7 +13,13 @@
     </a>
     <div id="nav-menu">
       {{- partial "menu.html" (dict "menuID" "main" "page" .) -}}
-      <a href="{{- absURL "" -}}/index.xml" style="color: inherit;">RSS</a>
+      <div class="nav-item">
+        {{- if or (not .Page.IsSection) (eq .Page.Section "fixed") }}
+          <a href="{{- absURL  "/index.xml" -}}"><img src="/img/feed.svg" alt="RSS" class="feed-img"></a>
+        {{- else }}
+          <a href="{{- absURL  (printf "%s/%s" .CurrentSection "index.xml") -}}"><img src="/img/feed.svg" alt="RSS" class="feed-img"></a>
+        {{- end }}
+      </div>
     </div>
     <a id="theme-switcher" href="#">
       {{- partial "svg/sun.svg" -}}
