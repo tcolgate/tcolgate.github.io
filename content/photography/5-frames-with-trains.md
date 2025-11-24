@@ -11,6 +11,7 @@ images = ["/img/five-frames-with-trains/P9250104.jpg"]
 {{< figure src="/img/35mmc-five-frames-with-trains/P9250104.jpg">}}
 
 *Note:* This post was written for [35mmc](https://www.35mmc.com/12/11/2023/5-frames-of-trains-with-an-olympus-pen-fv/)
+
 For many of us film photography comes with many advantages. The disconnect from the world digital technology. The enforced rituals and meditations. The total mental and physical involvement in producing that final physical asset, the negative, and maybe even a print. Few of us would include size and weight in such a list. Holiday travel on trains and buses with our k9 companion in tow, forces us to pack light. My beloved OM1-N is sleek, but full frame lenses, even the Zuikos, are not.
 
 {{< figure src="/img/35mmc-five-frames-with-trains/20230928_0006-1-1024x768.jpg" caption="The carriages of the Dean Forest Railway at rest on a station platform curve off into the distance." >}}

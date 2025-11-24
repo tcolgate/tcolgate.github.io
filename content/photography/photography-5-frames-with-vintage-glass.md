@@ -12,7 +12,7 @@ disqus_identifier = "tcolgate-blog"
 {{< figure src="/img/35mmc-five-frames-with-vintage-glass/PB060088.JPG">}}
 
 *Note:* This post has been written for [35mmc](https://35mmc.com), and will be
-removed from this site once it is published there
+removed from this site once it is published there.
 
 While an analogue photography habit can help us avoid the relentless tide of
 technological progress, it would be delusional to suggest it helps us (or me at
