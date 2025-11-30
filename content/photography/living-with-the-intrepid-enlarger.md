@@ -1,12 +1,12 @@
 +++
 title = "Living with the Intrepid Enlargers"
-date = "2025-11-28"
+date = "2025-11-30"
 summary = "Tips on using the Intrepid Compact and 4x5 enlargers"
-draft = true
+draft = false
 categories = [ "Photography" , "Darkroom" ]
 tags = ["intrepid"]
 keywords = ["photography", "darkroom", "printing", "intrepid"]
-images = ["/img/35mmc-five-frames-with-vintage-glass/PB060088.JPG"]
+images = ["/img/intrepid-life/intrepid-focus-position.jpg"]
 +++
 
 This page is a collection of tips, modification and links relating to use of
@@ -38,6 +38,9 @@ There are areas in which the Intrepids excel:
   So much so that you can't assume that 3 1s exposures are equivalent to 1 3s
   exposure. This is much less of a problem with phosphorous coated LEDs that have
   warm up/down times of around 1us.
+- If you own the compact enlarger you can buy the 4x5 kit without the timer which
+  saves some money. The 4x5 light is Graflock compatible so can work with most
+  4x5 cameras, as long as you can securely vertically mount it.
 
 I've divided the tips into three categories:
 
@@ -74,21 +77,22 @@ that's a bit fiddly and weird to find in the dark. So much so that I didn't
 actually even notice it was there until I got the second timer with my
 4x5 kit.
 
-Before I noticed the notch I decided to stick a small 3M Rubber dot to top
-of the run button. This makes it trivial to feel for, even if I have a towel
-thrown over the timer.
+Before I noticed the notch I decided to stick a small 3M Rubber dot to the top
+of the run button. This makes it trivial to find in total darkness, even if I
+have a towel thrown over the timer.
 
 ### 4x5 Light - rubber feet
 
-If you ever use the light for scanning (or even sensitometry), stick 4 of the
-rubber feet on the back of the light, one in each corner to stop it slipping.
+If you ever use the 4x5 light for scanning (or even sensitometry), stick 4 of
+the rubber feet on the back of the light, one in each corner to stop it
+slipping.
 
-### Compact Enlarger - Reverse the screw thread
+### Compact Enlarger - Reverse the focus thread
 
 I will die on this hill: as much as I love my Compact Enlarger, they ship the
 thing wrong!
 
-This tip comes from Roger Lower of Shoot Film like a Boss, and his original
+This tip comes from Roger Lowe of Shoot Film like a Boss, and his original
 review of the compact enlarger.
 
 {{< figure src="/img/intrepid-life/intrepid-focus-position.jpg" caption="Focus rod switched around" >}}
@@ -109,12 +113,12 @@ When focusing with the knob near the lens:
 
 Fortunately it's easy to switch around. With the knob above the light you need to
 reach a bit further, but you're arm doesn't get in the way. Also, the bit you are twiddling is
-not right by the tripod mount. This causes less wobbling while flex while focusing.
+now right by the tripod mount causing less wobbling while while focusing.
 
 The downside is that you have to remove the whole thread if you want to take the light off
-to use for scanning, but honestly, just a dedicated scanning light.
+to use for scanning, but honestly, just get a dedicated scanning light.
 
-### Compact & 4x5 Lights - side light leaks
+### Compact & 4x5 Lights - negative carrier side light leaks
 
 Because the neg carriers have minimal light trapping on the sides I find light
 spills out of the side when the light is on. It's not a huge problem, if if you
@@ -123,7 +127,7 @@ god your print.
 
 Although I haven't experienced huge issues with this fogging in practice, I
 keep a small black microfibre cloth draped over the top of the light to stop
-the light spilling onto my walls.
+the light spilling onto my walls and bouncing onto my prints.
 
 ### Tripod "template" {#tripod-template}
 
@@ -167,15 +171,23 @@ Yes, it's an ugly bodge, but also, yes it gets me printing plates.
 
 ### Enlargers - Tripod arm
 
+If you are using a tripod to hold the enlarger (rather than a dedicated column or
+copy stand), a horizontal tripod extension arm can make life much easier. This lets you
+keep the tripod level, but get the head out clear of the legs. This then helps avoid any
+easel blades fouling on the tripod legs. It also allows you to dedicate the centre column
+movement to height adjustment.
+
+I use [this one](https://www.kentfaith.co.uk/KF31.037_rotatable-multi-angle-center-column-for-camera-tripod-magnesium-alloy-&-locking-system) from K&F Concept, though I'm sure others are available.
+
 ### Compact Enlarger - Using Under Lens Filters {#filters}
 
 For various reasons I have found that I prefer using traditional contrast filters,
 rather than relying on the Intrepid Timer's built in contrast grade controls. I have
 used two different approaches and will present both here.
 
-#### A customer holder
+#### A custom holder
 
-{{< figure src="/img/intrepid-life/" caption="" >}}
+{{< figure src="/img/intrepid-life/filter-tray.jpg" caption="3D Printed ilford compatible filter tray" >}}
 
 The main approach I now use is a custom 3d printed tray that I attach to one of the
 vertical rods of the enlarger with a clamp. The code for the 3d print, and details of
@@ -187,8 +199,8 @@ Wratten gel filters.
 
 ![The multilated ilford filter carrier legs](/img/intrepid-life/ilford-holder.jpg)
 
-I had a hard time fitting the Ilford Multigrade Under the Lens multigrade
-filter kit with the Compact Enlarger.
+I had a hard time fitting the Ilford Under the Lens Multigrade
+Filter Kit with the Compact Enlarger.
 
 I use Schneider enlarger lenses which have a short thread and an extra arm to
 open the aperture. The short thread means that the lens will not screw in properly
@@ -252,3 +264,7 @@ is less easy to use than the default firmware, and at this time does not current
 the easy contrast grade settings of the original firmware (hence why I use [filters](#filters)
 
 The firmware is freely available and can be found [here](https://github.com/tcolgate/intrepid-fstopper)
+
+I find it test strips work particularly well if you can use a test strip printer that
+allows you to slide the paper so that each patch of the test strip comes from the same
+erea of the negative. I use [this](https://www.distphoto.com/product-details-1291/product/674e8e82bc6210d0d8943179) one by DistPhoto, but there are vintage version, and also some [3D Prints](https://www.printables.com/model/886035-the-ultimate-darkroom-printing-test-strip-maker) that achieve the same objective.
