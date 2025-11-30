@@ -67,7 +67,7 @@ There are a couple of other uses...
 
 ### Timer - rubber dot on Run
 
-{{< figure src="/img/ingrepid-life/" caption="" >}}
+{{< figure src="/img/intrepid-life/run-button.jpg" caption="Domed rubber dot on the Run button" >}}
 
 Although there is actually a small notch on the timer below the run button,
 that's a bit fiddly and weird to find in the dark. So much so that I didn't
@@ -91,7 +91,7 @@ thing wrong!
 This tip comes from Roger Lower of Shoot Film like a Boss, and his original
 review of the compact enlarger.
 
-{{< figure src="/img/ingrepid-life/" caption="" >}}
+{{< figure src="/img/intrepid-life/intrepid-focus-position.jpg" caption="Focus rod switched around" >}}
 
 When you first get the unit and set it up, the focusing knob is at the bottom, near
 where the lens is. I think they have it this way because it is easy to unscrew the
@@ -127,7 +127,7 @@ the light spilling onto my walls.
 
 ### Tripod "template" {#tripod-template}
 
-{{< figure src="/img/ingrepid-life/" caption="" >}}
+{{< figure src="/img/intrepid-life/" caption="" >}}
 
 If you are mounting your enlarger on a tripod it can be cumbersome to get
 set up for a print session. To help speed this up I created a set of
@@ -136,7 +136,7 @@ print session.
 
 ### Making plate holders
 
-{{< figure src="/img/ingrepid-life/" caption="" >}}
+{{< figure src="/img/intrepid-life/" caption="" >}}
 
 I am a fan of glass plate photography, and like to enlarge from glass negatives.
 There are some 3d print models for the purpose, but my own 3d printer is too small
@@ -175,7 +175,7 @@ used two different approaches and will present both here.
 
 #### A customer holder
 
-{{< figure src="/img/ingrepid-life/" caption="" >}}
+{{< figure src="/img/intrepid-life/" caption="" >}}
 
 The main approach I now use is a custom 3d printed tray that I attach to one of the
 vertical rods of the enlarger with a clamp. The code for the 3d print, and details of
@@ -185,7 +185,7 @@ Wratten gel filters.
 
 #### Making the original Ilford holder fit
 
-![The multilated ilford filter carrier legs](/doc/ilford-holder.jpg)
+![The multilated ilford filter carrier legs](/img/intrepid-life/ilford-holder.jpg)
 
 I had a hard time fitting the Ilford Multigrade Under the Lens multigrade
 filter kit with the Compact Enlarger.
@@ -238,7 +238,7 @@ clamp, I found the lens and ring would slip when changing aperture. To get aroun
 this I stretched a small strip of 1mm thich sticky backed light seal foam
 around the edge of the lens ring. This is just enough to prevent slipping.
 
-{{< figure src="/img/ingrepid-life/" caption="" >}}
+{{< figure src="/img/intrepid-life/nepla-foam.jpg" caption="1mm light seal foam added to ring to help with grip" >}}
 
 ### Timer - F-Stop printing firmware {#firmware}
 
@@ -252,6 +252,3 @@ is less easy to use than the default firmware, and at this time does not current
 the easy contrast grade settings of the original firmware (hence why I use [filters](#filters)
 
 The firmware is freely available and can be found [here](https://github.com/tcolgate/intrepid-fstopper)
-
-
-
