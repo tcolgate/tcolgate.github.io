@@ -12,7 +12,8 @@ images = ["/img/intrepid-life/intrepid-focus-position.jpg"]
 This page is a collection of tips, modification and links relating to use of
 the Intrepid [Compact](https://intrepidcamera.co.uk/products/intrepid-compact-enlarger-35mm-120)
 and [4x5](https://intrepidcamera.co.uk/collections/darkroom/products/intrepid-4x5-enlarger-kit)
-enlarger kits.
+enlarger kits. If you have any additional tips worth adding to this page please
+reach out via the comments section, and I'll add them to the post.
 
 I own both the Compact and 4x5 enlargers. While they are definitely a compromise
 over larger traditional enlargers in regard to:
@@ -268,3 +269,5 @@ The firmware is freely available and can be found [here](https://github.com/tcol
 I find it test strips work particularly well if you can use a test strip printer that
 allows you to slide the paper so that each patch of the test strip comes from the same
 erea of the negative. I use [this](https://www.distphoto.com/product-details-1291/product/674e8e82bc6210d0d8943179) one by DistPhoto, but there are vintage version, and also some [3D Prints](https://www.printables.com/model/886035-the-ultimate-darkroom-printing-test-strip-maker) that achieve the same objective.
+
+{{< disqus >}}
