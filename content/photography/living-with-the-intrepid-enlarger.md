@@ -30,7 +30,7 @@ over larger traditional enlargers in regard to:
 
 There are areas in which the Intrepids excel:
 - Size: Hands down, they are tiny. I keep both of my enlargers, along with
-  all my paper, trays, lenses, easel, and everything except my chems and jugs
+  all my paper, trays, lenses, easel, and everything except my chemicals and jugs
   , all in one small box under my table.
 - Heat/Noise: The LED head is silent, and does not require any fans for cooling.
 - Dimmable light. The brightness control can be used in place of height,
@@ -214,13 +214,13 @@ I did manage to make it fit by:
 
 * File out the inner circle of the 3-legged holder so that the lens will fit
   entirely inside it without "clamping" it to the lens board.
-* The the legs on the three-legged holder are arrange with two of the
-  legscloser together. The section with the two closer together faces "forward"
+* The legs on the three-legged holder are arranged with two of the
+  legs closer together. The section with the two closer together faces "forward"
   to the entrance of the filter holder.
 * Assume the filter holder will fit "side ways", that is, rather than the filters going
   in the front facing you, they go in from the left hand side, so we'll arrange for the
   two closer legs to be to the left of the lens hole. This makes it easier to use the
-  aperturen opening preview arm.
+  aperture opening preview arm.
 * Cut out the long section that will be  toward the back of the lens board,
   this makes it easier to fit the 3-legged holder when the lens is already
   mounted to the lens board. The gap makes room for 3 legged arm to slide on without
@@ -235,7 +235,7 @@ The tips below are higher risk and require physical, or software
 changes that will almost certainly void the warranty of your enlarger.
 
 ### Compact Enlarger - [Bluegrass Photography's Nepla lens board](https://bluegrassphotographics.com/Lensboard-Upgrade-for-Intrepid-MF-Enlarger-p719001905)
-This replaces the botton panel of the enlarger and swaps the integrated m39
+This replaces the bottom panel of the enlarger and swaps the integrated m39
 mount out for a spring loaded lens mount that holds [Durst Nepla compatible lens boards](https://bluegrassphotographics.com/Durst-Nepla-Lens-Board-p696134055).
 Note that the boards are sold separately, you can buy one, or use a compatible vintage
 lens board.
@@ -248,7 +248,7 @@ completely stripped the head on one of them.
 I also made one small adjustment to the [nepla lens mounting ring](https://bluegrassphotographics.com/Durst-Nepla-Lens-Board-p696134055) I purchased
 from the Bluegrass Store. When mounted to a lens, and into the retaining
 clamp, I found the lens and ring would slip when changing aperture. To get around
-this I stretched a small strip of 1mm thich sticky backed light seal foam
+this I stretched a small strip of 1mm thick sticky backed light seal foam
 around the edge of the lens ring. This is just enough to prevent slipping.
 
 {{< figure src="/img/intrepid-life/nepla-foam.jpg" caption="1mm light seal foam added to ring to help with grip" >}}
@@ -266,8 +266,8 @@ the easy contrast grade settings of the original firmware (hence why I use [filt
 
 The firmware is freely available and can be found [here](https://github.com/tcolgate/intrepid-fstopper)
 
-I find it test strips work particularly well if you can use a test strip printer that
+I find the test strips work particularly well if you can use a test strip printer that
 allows you to slide the paper so that each patch of the test strip comes from the same
-erea of the negative. I use [this](https://www.distphoto.com/product-details-1291/product/674e8e82bc6210d0d8943179) one by DistPhoto, but there are vintage version, and also some [3D Prints](https://www.printables.com/model/886035-the-ultimate-darkroom-printing-test-strip-maker) that achieve the same objective.
+area of the negative. I use [this](https://www.distphoto.com/product-details-1291/product/674e8e82bc6210d0d8943179) one by DistPhoto, but there are vintage version, and also some [3D Prints](https://www.printables.com/model/886035-the-ultimate-darkroom-printing-test-strip-maker) that achieve the same objective.
 
 {{< disqus >}}
