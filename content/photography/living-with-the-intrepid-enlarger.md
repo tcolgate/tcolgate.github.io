@@ -235,7 +235,7 @@ The tips below are higher risk and require physical, or software
 changes that will almost certainly void the warranty of your enlarger.
 
 ### Compact Enlarger - [Bluegrass Photography's Nepla lens board](https://bluegrassphotographics.com/Lensboard-Upgrade-for-Intrepid-MF-Enlarger-p719001905)
-This replaces the botton panel of the enlarger and swaps the integrated m43
+This replaces the botton panel of the enlarger and swaps the integrated m39
 mount out for a spring loaded lens mount that holds [Durst Nepla compatible lens boards](https://bluegrassphotographics.com/Durst-Nepla-Lens-Board-p696134055).
 Note that the boards are sold separately, you can buy one, or use a compatible vintage
 lens board.
