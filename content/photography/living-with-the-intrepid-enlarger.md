@@ -5,6 +5,7 @@ summary = "Tips on using the Intrepid Compact and 4x5 enlargers"
 draft = true
 categories = [ "Photography" , "Darkroom" ]
 tags = ["intrepid"]
+keywords = ["photography", "darkroom", "printing", "intrepid"]
 images = ["/img/35mmc-five-frames-with-vintage-glass/PB060088.JPG"]
 +++
 
@@ -14,7 +15,7 @@ and [4x5](https://intrepidcamera.co.uk/collections/darkroom/products/intrepid-4x
 enlarger kits.
 
 I own both the Compact and 4x5 enlargers. While they are definitely a compromise
-over larger traditional enlargers in regard:
+over larger traditional enlargers in regard to:
 - build quality: They are well built, but definitely not as solid as a
   traditional enlarger.
 - Colour printing: The LEDs in the enlargers are not ideal for colour printing.
@@ -48,6 +49,9 @@ I've divided the tips into three categories:
 - [Advanced Mods](#advanced): These are bigger changes that will void warranties, and
   perhaps destroy the very fabric of space and time.
 
+I have also prefixed the title of each tip with a rough indication of what
+part of the whole system it relates to (for example which enlarger or the timer).
+
 ## Basic Modifications {#basic}
 
 There are a handful of very simple changes that can make a big difference.
@@ -62,6 +66,8 @@ a whole bunch of.
 There are a couple of other uses...
 
 ### Timer - rubber dot on Run
+
+{{< figure src="/img/ingrepid-life/" caption="" >}}
 
 Although there is actually a small notch on the timer below the run button,
 that's a bit fiddly and weird to find in the dark. So much so that I didn't
@@ -84,6 +90,8 @@ thing wrong!
 
 This tip comes from Roger Lower of Shoot Film like a Boss, and his original
 review of the compact enlarger.
+
+{{< figure src="/img/ingrepid-life/" caption="" >}}
 
 When you first get the unit and set it up, the focusing knob is at the bottom, near
 where the lens is. I think they have it this way because it is easy to unscrew the
@@ -119,12 +127,16 @@ the light spilling onto my walls.
 
 ### Tripod "template" {#tripod-template}
 
+{{< figure src="/img/ingrepid-life/" caption="" >}}
+
 If you are mounting your enlarger on a tripod it can be cumbersome to get
 set up for a print session. To help speed this up I created a set of
 cardboard templates that I can use to set the column height for a given
 print session.
 
 ### Making plate holders
+
+{{< figure src="/img/ingrepid-life/" caption="" >}}
 
 I am a fan of glass plate photography, and like to enlarge from glass negatives.
 There are some 3d print models for the purpose, but my own 3d printer is too small
@@ -155,14 +167,61 @@ Yes, it's an ugly bodge, but also, yes it gets me printing plates.
 
 ### Enlargers - Tripod arm
 
-### Compact Enlarger - Using Filters
+### Compact Enlarger - Using Under Lens Filters {#filters}
+
+For various reasons I have found that I prefer using traditional contrast filters,
+rather than relying on the Intrepid Timer's built in contrast grade controls. I have
+used two different approaches and will present both here.
+
+#### A customer holder
+
+{{< figure src="/img/ingrepid-life/" caption="" >}}
+
+The main approach I now use is a custom 3d printed tray that I attach to one of the
+vertical rods of the enlarger with a clamp. The code for the 3d print, and details of
+the clamp can both be found [here]( https://github.com/tcolgate/intrepid-fstopper/tree/main/hardware).
+There is also a model for a clip together filter holder that will hold Kodak
+Wratten gel filters.
+
+#### Making the original Ilford holder fit
+
+![The multilated ilford filter carrier legs](/doc/ilford-holder.jpg)
+
+I had a hard time fitting the Ilford Multigrade Under the Lens multigrade
+filter kit with the Compact Enlarger.
+
+I use Schneider enlarger lenses which have a short thread and an extra arm to
+open the aperture. The short thread means that the lens will not screw in properly
+with the 3-legged holder between it and the lens board. Also, it becomes very
+awkward to change lenses and keep the holder in place. In addition, once fitted
+the three legged holder gets in the way of the preview arm. The approach below seemed
+to alleviate a lot of these problems, but was still annoying to use.
+
+I did manage to make it fit by:
+
+* File out the inner circle of the 3-legged holder so that the lens will fit
+  entirely inside it without "clamping" it to the lens board.
+* The the legs on the three-legged holder are arrange with two of the
+  legscloser together. The section with the two closer together faces "forward"
+  to the entrance of the filter holder.
+* Assume the filter holder will fit "side ways", that is, rather than the filters going
+  in the front facing you, they go in from the left hand side, so we'll arrange for the
+  two closer legs to be to the left of the lens hole. This makes it easier to use the
+  aperturen opening preview arm.
+* Cut out the long section that will be  toward the back of the lens board,
+  this makes it easier to fit the 3-legged holder when the lens is already
+  mounted to the lens board. The gap makes room for 3 legged arm to slide on without
+  hitting the preview arm.
+* Use some small bits of sticky velcro to let me affix the 3-legged holder around
+  the lens hole on the board. You don't need loads, the holder is not heavy. Make sure
+  the velcro does not get between the lens board and the lens.
 
 ## Advanced Modifications {#advanced}
 
 The tips below are higher risk and require physical, or software
 changes that will almost certainly void the warranty of your enlarger.
 
-### Compact Enlarge - [Bluegrass Photography's Nepla lens board](https://bluegrassphotographics.com/Lensboard-Upgrade-for-Intrepid-MF-Enlarger-p719001905)
+### Compact Enlarger - [Bluegrass Photography's Nepla lens board](https://bluegrassphotographics.com/Lensboard-Upgrade-for-Intrepid-MF-Enlarger-p719001905)
 This replaces the botton panel of the enlarger and swaps the integrated m43
 mount out for a spring loaded lens mount that holds [Durst Nepla compatible lens boards](https://bluegrassphotographics.com/Durst-Nepla-Lens-Board-p696134055).
 Note that the boards are sold separately, you can buy one, or use a compatible vintage
@@ -179,10 +238,20 @@ clamp, I found the lens and ring would slip when changing aperture. To get aroun
 this I stretched a small strip of 1mm thich sticky backed light seal foam
 around the edge of the lens ring. This is just enough to prevent slipping.
 
-TODO: INSERT IMAGE OF ring
+{{< figure src="/img/ingrepid-life/" caption="" >}}
 
-### Timer - F-Stop printing firmware
+### Timer - F-Stop printing firmware {#firmware}
 
+I have personally found that my quickest route to a good exposure, and understanding
+of the contrast in my print has come via f-stop printing. The idea is relatively simple
+but producing and f-stop test strip, or adjusting exposure via d-stops can be
+awkward with the simple +/- adjustments of the Intrepid enlarger timer firmware.
+
+To make the process easier I have developed my own custom firmware for the purpose. It
+is less easy to use than the default firmware, and at this time does not currently support
+the easy contrast grade settings of the original firmware (hence why I use [filters](#filters)
+
+The firmware is freely available and can be found [here](https://github.com/tcolgate/intrepid-fstopper)
 
 
 
