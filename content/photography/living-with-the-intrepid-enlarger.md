@@ -122,9 +122,9 @@ to use for scanning, but honestly, just get a dedicated scanning light.
 ### Compact & 4x5 Lights - negative carrier side light leaks
 
 Because the neg carriers have minimal light trapping on the sides I find light
-spills out of the side when the light is on. It's not a huge problem, if if you
-have white walls near the enlarger, that light can bounce off and potentially
-god your print.
+spills out of the side when the light is on. It's not a huge problem but if you
+have white walls near the enlarger that extra light can bounce off them and
+potentially fog your print.
 
 Although I haven't experienced huge issues with this fogging in practice, I
 keep a small black microfibre cloth draped over the top of the light to stop
@@ -137,7 +137,7 @@ the light spilling onto my walls and bouncing onto my prints.
 If you are mounting your enlarger on a tripod it can be cumbersome to get
 set up for a print session. To help speed this up I created a set of
 cardboard templates that I can use to set the column height for a given
-print session.
+print session. TODO (add more info and picture)
 
 ### Making plate holders
 
@@ -257,7 +257,7 @@ around the edge of the lens ring. This is just enough to prevent slipping.
 
 I have personally found that my quickest route to a good exposure, and understanding
 of the contrast in my print has come via f-stop printing. The idea is relatively simple
-but producing and f-stop test strip, or adjusting exposure via d-stops can be
+but producing and f-stop test strip, or adjusting exposure via f-stops can be
 awkward with the simple +/- adjustments of the Intrepid enlarger timer firmware.
 
 To make the process easier I have developed my own custom firmware for the purpose. It
