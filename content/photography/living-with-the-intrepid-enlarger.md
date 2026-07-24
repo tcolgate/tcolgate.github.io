@@ -192,7 +192,7 @@ used two different approaches and will present both here.
 
 The main approach I now use is a custom 3d printed tray that I attach to one of the
 vertical rods of the enlarger with a clamp. The code for the 3d print, and details of
-the clamp can both be found [here]( https://github.com/tcolgate/intrepid-fstopper/tree/main/hardware).
+the clamp can both be found [here]( https://codeberg.org/tcolgate/intrepid-fstopper/tree/main/hardware).
 There is also a model for a clip together filter holder that will hold Kodak
 Wratten gel filters.
 
@@ -264,7 +264,7 @@ To make the process easier I have developed my own custom firmware for the purpo
 is less easy to use than the default firmware, and at this time does not currently support
 the easy contrast grade settings of the original firmware (hence why I use [filters](#filters)
 
-The firmware is freely available and can be found [here](https://github.com/tcolgate/intrepid-fstopper)
+The firmware is freely available and can be found [here](https://codeberg.org/tcolgate/intrepid-fstopper)
 
 I find the test strips work particularly well if you can use a test strip printer that
 allows you to slide the paper so that each patch of the test strip comes from the same
